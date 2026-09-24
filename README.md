@@ -1,2 +1,0 @@
-# ZETTA
-Software sobre fotografia
