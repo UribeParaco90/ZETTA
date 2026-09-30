@@ -1,0 +1,7 @@
+{
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.donotVerifyTags": true,
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "files.exclude": { "**/.DS_Store": true }
+}
