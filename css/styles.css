@@ -1,0 +1,340 @@
+/*
+  ZETTA landing page
+  Estilo base y componentes visuales con glassmorphism sobre Bootstrap 5.
+  Se organiza por bloques para facilitar mantenimiento y futuras modificaciones.
+*/
+
+:root {
+  --bg-1: #0f172a;
+  --bg-2: #1e1b4b;
+  --cyan: #38bdf8;
+  --indigo: #818cf8;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --glass: rgba(255, 255, 255, 0.06);
+  --line: rgba(255, 255, 255, 0.18);
+  --shadow: rgba(15, 23, 42, 0.4);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 96px;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  background: linear-gradient(160deg, var(--bg-1), var(--bg-2)) fixed;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(600px 350px at 15% 8%, rgba(56, 189, 248, 0.18), transparent),
+    radial-gradient(600px 450px at 90% 60%, rgba(129, 140, 248, 0.2), transparent);
+}
+
+/* Base de texto */
+.text-muted,
+.lead {
+  color: var(--muted) !important;
+}
+
+.grad {
+  background: linear-gradient(90deg, var(--cyan), var(--indigo));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Accesibilidad */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+/* Espaciado general de secciones */
+section,
+.hero {
+  padding: 72px 0;
+}
+
+.hero {
+  padding-top: 150px;
+  padding-bottom: 40px;
+}
+
+.feature-block {
+  scroll-margin-top: 90px;
+}
+
+/* Barra de navegación flotante */
+.island {
+  position: fixed;
+  top: calc(20px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: min(1000px, calc(100% - 24px));
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.island .nav-link {
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 14px !important;
+}
+
+.island .nav-link:hover {
+  color: var(--text);
+  background: var(--glass);
+}
+
+.island .navbar-toggler {
+  border-color: var(--line);
+}
+
+/* Botones */
+.btn-zetta {
+  color: #0f172a;
+  font-weight: 600;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--cyan), var(--indigo));
+}
+
+.btn-zetta:hover {
+  color: #0f172a;
+  filter: brightness(1.12);
+}
+
+.btn-ghost {
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--glass);
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+  border-color: var(--cyan);
+}
+
+/* Tarjetas, paneles y contenedores */
+.glass {
+  padding: 24px;
+  height: 100%;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.glass:hover {
+  border-color: rgba(56, 189, 248, 0.6);
+  transform: translateY(-3px);
+}
+
+/* Elementos visuales de la landing */
+.icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 14px;
+  font-size: 1.4rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(129, 140, 248, 0.25));
+}
+
+.stat b {
+  display: block;
+  font-size: 2rem;
+  color: var(--cyan);
+}
+
+.step {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--indigo));
+}
+
+.chip {
+  display: inline-block;
+  margin: 4px;
+  padding: 6px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--glass);
+}
+
+.role-chips {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.plan-top {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan), 0 10px 30px rgba(56, 189, 248, 0.15);
+}
+
+.plan ul {
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+/* acordeón */
+.accordion {
+  --bs-accordion-bg: transparent;
+  --bs-accordion-color: var(--text);
+  --bs-accordion-border-color: var(--line);
+  --bs-accordion-btn-bg: var(--glass);
+  --bs-accordion-active-bg: rgba(56, 189, 248, 0.1);
+  --bs-accordion-active-color: var(--text);
+}
+
+.accordion-button:not(.collapsed) {
+  box-shadow: none;
+}
+
+.faq-container {
+  max-width: 780px;
+}
+
+/* Vista previa del hero */
+.mock {
+  max-width: 440px;
+  margin-inline: auto;
+}
+
+.mock .row-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 28px 0;
+  color: var(--muted);
+}
+
+/* Diagrama de módulos */
+.tree-root {
+  text-align: center;
+  position: relative;
+  padding-bottom: 28px;
+}
+
+.root-box {
+  display: inline-block;
+  padding: 10px 32px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  border: 1px solid var(--cyan);
+  border-radius: 14px;
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.tree-root::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 28px;
+  border-left: 1px solid var(--cyan);
+}
+
+.branches {
+  position: relative;
+}
+
+.branch {
+  position: relative;
+}
+
+.items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.items li {
+  padding: 6px 0 6px 18px;
+  position: relative;
+}
+
+.items li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--cyan);
+}
+
+.cta-box {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+@media (max-width: 575px) {
+  section,
+  .hero {
+    padding: 56px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .branches::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12.5%;
+    right: 12.5%;
+    border-top: 1px solid var(--cyan);
+  }
+
+  .branch::before {
+    content: "";
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    height: 24px;
+    border-left: 1px solid var(--cyan);
+  }
+
+  .branches {
+    margin-top: 0;
+    padding-top: 0;
+  }
+}
+
