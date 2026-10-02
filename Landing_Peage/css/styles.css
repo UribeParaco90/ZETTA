@@ -1,15 +1,13 @@
-/* ZETTA landing · Frosted Glass sobre Bootstrap 5.3 (modo oscuro) */
-
-/* Base */
+/* Identidad visual de ZETTA sobre Bootstrap 5.3 en modo oscuro. */
 :root {
-  --bg1: #0f172a;
-  --bg2: #1e1b4b;
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e1b4b;
   --cyan: #38bdf8;
   --indigo: #818cf8;
-  --txt: #e2e8f0;
-  --mut: #94a3b8;
-  --glass: rgba(255, 255, 255, .06);
-  --line: rgba(255, 255, 255, .18);
+  --text-primary: #e2e8f0;
+  --text-muted: #94a3b8;
+  --surface-glass: rgba(255, 255, 255, 0.06);
+  --border-glass: rgba(255, 255, 255, 0.18);
 }
 
 html {
@@ -18,18 +16,19 @@ html {
 }
 
 body {
-  color: var(--txt);
+  color: var(--text-primary);
   font-family: "Segoe UI", system-ui, sans-serif;
-  background: linear-gradient(160deg, var(--bg1), var(--bg2)) fixed;
+  background: linear-gradient(160deg, var(--bg-primary), var(--bg-secondary)) fixed;
 }
 
 body::before {
-  content: "";
   position: fixed;
-  inset: 0;
   z-index: -1;
-  background: radial-gradient(600px 350px at 15% 8%, rgba(56, 189, 248, .18), transparent),
-    radial-gradient(600px 450px at 90% 60%, rgba(129, 140, 248, .2), transparent);
+  inset: 0;
+  content: "";
+  background:
+    radial-gradient(600px 350px at 15% 8%, rgba(56, 189, 248, 0.18), transparent),
+    radial-gradient(600px 450px at 90% 60%, rgba(129, 140, 248, 0.2), transparent);
 }
 
 section {
@@ -38,17 +37,17 @@ section {
 
 .text-muted,
 .lead {
-  color: var(--mut) !important;
+  color: var(--text-muted) !important;
 }
 
 .grad {
   color: transparent;
   background: linear-gradient(90deg, var(--cyan), var(--indigo));
-  -webkit-background-clip: text;
   background-clip: text;
+  -webkit-background-clip: text;
 }
 
-/* Navegacion */
+/* Barra de navegación flotante. */
 .island {
   position: fixed;
   top: calc(20px + env(safe-area-inset-top, 0px));
@@ -56,9 +55,9 @@ section {
   z-index: 20;
   width: min(1000px, calc(100% - 24px));
   padding: 8px 16px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-glass);
   border-radius: 28px;
-  background: rgba(15, 23, 42, .6);
+  background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   transform: translateX(-50%);
@@ -66,22 +65,36 @@ section {
 
 .island .nav-link {
   padding: 6px 14px !important;
-  color: var(--mut);
+  color: var(--text-muted);
   border-radius: 999px;
 }
 
 .island .nav-link:hover {
-  color: var(--txt);
-  background: var(--glass);
+  color: var(--text-primary);
+  background: var(--surface-glass);
 }
 
 .island .navbar-toggler {
-  border-color: var(--line);
+  border-color: var(--border-glass);
 }
 
-/* Botones y elementos reutilizables */
+.island .navbar-toggler:focus-visible,
+.island .nav-link:focus-visible,
+.btn:focus-visible,
+.accordion-button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+.hero {
+  padding-top: 150px;
+  padding-bottom: 40px;
+}
+
+/* Botones, tarjetas y elementos de apoyo. */
 .btn-zetta {
-  color: #0f172a;
+  color: var(--bg-primary);
   font-weight: 600;
   border: 0;
   border-radius: 12px;
@@ -89,69 +102,36 @@ section {
 }
 
 .btn-zetta:hover {
-  color: #0f172a;
+  color: var(--bg-primary);
   filter: brightness(1.12);
 }
 
 .btn-ghost {
-  color: var(--txt);
-  border: 1px solid var(--line);
+  color: var(--text-primary);
+  border: 1px solid var(--border-glass);
   border-radius: 12px;
-  background: var(--glass);
+  background: var(--surface-glass);
 }
 
 .btn-ghost:hover {
-  color: var(--txt);
+  color: var(--text-primary);
   border-color: var(--cyan);
 }
 
-.chip {
-  display: inline-block;
-  margin: 4px;
-  padding: 6px 16px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--glass);
-}
-
-.icon {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 14px;
-  font-size: 1.4rem;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(56, 189, 248, .25), rgba(129, 140, 248, .25));
-}
-
-.step {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  margin-bottom: 12px;
-  color: #0f172a;
-  font-weight: 700;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--cyan), var(--indigo));
-}
-
-/* Tarjetas */
 .glass {
   height: 100%;
   padding: 24px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-glass);
   border-radius: 18px;
-  background: var(--glass);
+  background: var(--surface-glass);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
-  transition: border-color .2s, transform .2s;
+  transition: border-color 0.2s, transform 0.2s;
 }
 
 .glass:hover {
-  border-color: rgba(56, 189, 248, .6);
+  border-color: rgba(56, 189, 248, 0.6);
   transform: translateY(-3px);
 }
 
@@ -161,44 +141,46 @@ section {
   font-size: 2rem;
 }
 
-.plan-top {
-  border-color: var(--cyan);
-  box-shadow: 0 0 0 1px var(--cyan), 0 10px 30px rgba(56, 189, 248, .15);
+.step {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 12px;
+  color: var(--bg-primary);
+  font-weight: 700;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--indigo));
 }
 
-.plan ul {
-  padding-left: 18px;
-  color: var(--mut);
+.chip {
+  display: inline-block;
+  margin: 4px;
+  padding: 6px 16px;
+  border: 1px solid var(--border-glass);
+  border-radius: 999px;
+  background: var(--surface-glass);
 }
 
-/* Vista previa del hero */
-.mock {
-  max-width: 440px;
-  margin-inline: auto;
-}
-
-.mock .row-line {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, .08);
-}
-
-/* Preguntas frecuentes */
+/* Componentes de Bootstrap con colores adaptados a ZETTA. */
 .accordion {
   --bs-accordion-bg: transparent;
-  --bs-accordion-color: var(--txt);
-  --bs-accordion-border-color: var(--line);
-  --bs-accordion-btn-bg: var(--glass);
-  --bs-accordion-active-bg: rgba(56, 189, 248, .1);
-  --bs-accordion-active-color: var(--txt);
+  --bs-accordion-color: var(--text-primary);
+  --bs-accordion-border-color: var(--border-glass);
+  --bs-accordion-btn-bg: var(--surface-glass);
+  --bs-accordion-active-bg: rgba(56, 189, 248, 0.1);
+  --bs-accordion-active-color: var(--text-primary);
 }
 
 .accordion-button:not(.collapsed) {
   box-shadow: none;
 }
 
-/* Diagrama de modulos */
+.faq-container {
+  max-width: 780px;
+}
+
+/* Diagrama de módulos. */
 .tree-root {
   position: relative;
   padding-bottom: 28px;
@@ -209,19 +191,19 @@ section {
   display: inline-block;
   padding: 10px 32px;
   font-weight: 700;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   border: 1px solid var(--cyan);
   border-radius: 14px;
-  background: rgba(56, 189, 248, .1);
+  background: rgba(56, 189, 248, 0.1);
 }
 
 .tree-root::after {
-  content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
   height: 28px;
   border-left: 1px solid var(--cyan);
+  content: "";
 }
 
 .branches,
@@ -232,8 +214,8 @@ section {
 .items {
   margin: 0;
   padding: 0;
-  border-top: 1px solid rgba(255, 255, 255, .1);
   list-style: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .items li {
@@ -242,54 +224,91 @@ section {
 }
 
 .items li::before {
-  content: "–";
   position: absolute;
   left: 0;
   color: var(--cyan);
+  content: "–";
 }
 
-/* Pie de pagina */
+/* Imágenes con una superficie de respaldo mientras cargan. */
+.media,
+.mod-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(56, 189, 248, 0.25),
+    rgba(129, 140, 248, 0.25)
+  );
+}
+
+.media {
+  aspect-ratio: 16 / 11;
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.mod-img {
+  aspect-ratio: 8 / 5;
+  margin-bottom: 14px;
+  border-radius: 12px;
+}
+
 footer {
   padding: 28px 0;
-  color: var(--mut);
-  border-top: 1px solid var(--line);
-}
-
-/* Ajustes responsive */
-@media (max-width: 575px) {
-  section {
-    padding: 56px 0;
-  }
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-glass);
 }
 
 @media (min-width: 992px) {
   .branches::before {
-    content: "";
     position: absolute;
     top: 0;
     right: 12.5%;
     left: 12.5%;
     border-top: 1px solid var(--cyan);
+    content: "";
   }
 
   .branch::before {
-    content: "";
     position: absolute;
     top: -24px;
     left: 50%;
     height: 24px;
     border-left: 1px solid var(--cyan);
+    content: "";
+  }
+}
+
+@media (max-width: 767.98px) {
+  .island {
+    border-radius: 20px;
   }
 
-  .branches {
-    margin-top: 0;
-    padding-top: 0;
+  .island .navbar-collapse {
+    padding-top: 8px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  section {
+    padding: 56px 0;
+  }
+
+  .hero {
+    padding-top: 128px;
+    padding-bottom: 32px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
+  *,
+  *::before,
+  *::after {
     scroll-behavior: auto !important;
+    transition: none !important;
   }
 }
