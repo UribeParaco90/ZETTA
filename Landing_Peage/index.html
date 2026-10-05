@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="ZETTA: gestión académica para colegios y universidades."
+    >
+    <title>ZETTA · Gestión académica</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2338bdf8'/%3E%3Ctext x='50' y='70' font-size='62' font-weight='700' text-anchor='middle' fill='%230f172a'%3EZ%3C/text%3E%3C/svg%3E"
+    >
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+  </head>
+  <body>
+    <!-- Navegación principal, fija y adaptable a pantallas pequeñas. -->
+    <nav class="navbar navbar-expand-md island" aria-label="Navegación principal">
+      <a class="navbar-brand fw-bold grad" href="#inicio">ZETTA</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#menu"
+        aria-controls="menu"
+        aria-expanded="false"
+        aria-label="Abrir o cerrar el menú"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link" href="#modulos">Módulos</a></li>
+          <li class="nav-item"><a class="nav-link" href="#galeria">Galería</a></li>
+          <li class="nav-item"><a class="nav-link" href="#roles">Roles</a></li>
+          <li class="nav-item"><a class="nav-link" href="#como">Cómo funciona</a></li>
+          <li class="nav-item"><a class="nav-link" href="#faq">Preguntas frecuentes</a></li>
+        </ul>
+        <a class="btn btn-zetta btn-sm px-3" href="#">Iniciar sesión</a>
+      </div>
+    </nav>
+
+    <main>
+      <!-- Presentación principal de la plataforma. -->
+      <header id="inicio" class="container hero">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-6">
+            <h1 class="display-4 fw-bold">
+              Tu institución, <span class="grad">en un solo lugar</span>
+            </h1>
+            <p class="lead my-4">Matrículas, notas y asistencia, simples y seguros.</p>
+            <div class="d-flex flex-wrap gap-2">
+              <a class="btn btn-zetta btn-lg px-4" href="#">Iniciar sesión</a>
+              <a class="btn btn-ghost btn-lg px-4" href="#modulos">Ver módulos</a>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <img
+              class="media"
+              src="https://res.cloudinary.com/dss9iyix/image/upload/v1790895993/hero-estudiantes.jpg"
+              width="1600"
+              height="1000"
+              alt="Estudiantes con laptop en el aula"
+              fetchpriority="high"
+            >
+          </div>
+        </div>
+      </header>
+
+      <!-- Resumen de las funciones principales. -->
+      <section class="py-4" aria-label="Resumen de ZETTA">
+        <div class="container">
+          <div class="row g-3 text-center">
+            <div class="col-6 col-md-3"><div class="glass stat"><b>4</b>módulos</div></div>
+            <div class="col-6 col-md-3"><div class="glass stat"><b>5</b>roles</div></div>
+            <div class="col-6 col-md-3"><div class="glass stat"><b>PDF</b>boletines</div></div>
+            <div class="col-6 col-md-3"><div class="glass stat"><b>100%</b>datos aislados</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Módulos académicos organizados en un diagrama adaptable. -->
+      <section id="modulos">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h2 class="fw-bold">Un sistema, cuatro módulos</h2>
+            <p class="lead">Así está organizado ZETTA por dentro.</p>
+          </div>
+          <div class="tree-root"><span class="root-box">SISTEMA ZETTA</span></div>
+          <div class="row g-4 branches">
+            <div class="col-md-6 col-lg-3 branch">
+              <article class="glass">
+                <img
+                  class="mod-img"
+                  src="https://res.cloudinary.com/dss9iyix/image/upload/v1790895995/modulo-matriculas.jpg"
+                  width="1600"
+                  height="1000"
+                  alt="Secretaría: matrícula de un estudiante"
+                  loading="lazy"
+                >
+                <h3 class="h5">Matrículas</h3>
+                <ul class="items">
+                  <li>Estudiantes</li>
+                  <li>Cursos</li>
+                  <li>Asignaciones</li>
+                </ul>
+              </article>
+            </div>
+            <div class="col-md-6 col-lg-3 branch">
+              <article class="glass">
+                <img
+                  class="mod-img"
+                  src="https://res.cloudinary.com/dss9iyix/image/upload/v1790895993/modulo-calificaciones.jpg"
+                  width="1600"
+                  height="1000"
+                  alt="Docente revisando calificaciones"
+                  loading="lazy"
+                >
+                <h3 class="h5">Calificaciones</h3>
+                <ul class="items">
+                  <li>Carga de notas</li>
+                  <li>Ponderación</li>
+                  <li>Boletines</li>
+                </ul>
+              </article>
+            </div>
+            <div class="col-md-6 col-lg-3 branch">
+              <article class="glass">
+                <img
+                  class="mod-img"
+                  src="https://res.cloudinary.com/dss9iyix/image/upload/v1790895993/modulo-asistencia.jpg"
+                  width="1600"
+                  height="1000"
+                  alt="Docente tomando lista en el salón"
+                  loading="lazy"
+                >
+                <h3 class="h5">Asistencia</h3>
+                <ul class="items">
+                  <li>Toma diaria</li>
+                  <li>Excusas</li>
+                  <li>Alertas</li>
+                </ul>
+              </article>
+            </div>
+            <div class="col-md-6 col-lg-3 branch">
+              <article class="glass">
+                <img
+                  class="mod-img"
+                  src="https://res.cloudinary.com/dss9iyix/image/upload/v1790895994/modulo-configuracion.jpg"
+                  width="1600"
+                  height="1000"
+                  alt="Coordinador académico en el computador"
+                  loading="lazy"
+                >
+                <h3 class="h5">Configuración</h3>
+                <ul class="items">
+                  <li>Parámetros</li>
+                  <li>Auditoría</li>
+                  <li>Integración</li>
+                </ul>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Imágenes de la comunidad académica. -->
+      <section id="galeria">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h2 class="fw-bold">Para toda la comunidad</h2>
+          </div>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <figure class="m-0">
+                <img
+                  class="media"
+                  src="https://res.cloudinary.com/dss9iyix/image/upload/v1790894909/aulas.jpg"
+                  width="1600"
+                  height="1000"
+                  alt="Aula de clase con estudiantes"
+                  loading="lazy"
+                >
+                <figcaption class="text-center mt-2 text-muted">Aulas</figcaption>
+              </figure>
+            </div>
+            <div class="col-md-4">
+              <figure class="m-0">
+                <img
+                  class="media"
+                  src="https://res.cloudinary.com/dss9iyix/image/upload/v1790895314/docentes.jpg"
+                  width="1600"
+                  height="1000"
+                  alt="Docentes en reunión"
+                  loading="lazy"
+                >
+                <figcaption class="text-center mt-2 text-muted">Docentes</figcaption>
+              </figure>
+            </div>
+            <div class="col-md-4">
+              <figure class="m-0">
+                <img
+                  class="media"
+                  src="https://res.cloudinary.com/dss9iyix/image/upload/v1790895993/familias.jpg"
+                  width="1600"
+                  height="1000"
+                  alt="Familia acompañando al estudiante"
+                  loading="lazy"
+                >
+                <figcaption class="text-center mt-2 text-muted">Familias</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Perfiles de usuario de la plataforma. -->
+      <section id="roles">
+        <div class="container text-center">
+          <h2 class="fw-bold mb-4">Cada rol ve lo suyo</h2>
+          <div class="d-flex flex-wrap justify-content-center">
+            <span class="chip">SuperAdmin</span>
+            <span class="chip">Administrador</span>
+            <span class="chip">Profesor</span>
+            <span class="chip">Estudiante</span>
+            <span class="chip">Acudiente</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pasos para empezar a utilizar ZETTA. -->
+      <section id="como">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h2 class="fw-bold">Empieza en tres pasos</h2>
+          </div>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <article class="glass">
+                <div class="step">1</div>
+                <h3 class="h5">Configura</h3>
+                <p class="text-muted mb-0">
+                  Define tu institución, cursos, asignaturas y la escala de valoración.
+                </p>
+              </article>
+            </div>
+            <div class="col-md-4">
+              <article class="glass">
+                <div class="step">2</div>
+                <h3 class="h5">Matricula</h3>
+                <p class="text-muted mb-0">
+                  Registra estudiantes y acudientes, y asigna a cada docente sus materias.
+                </p>
+              </article>
+            </div>
+            <div class="col-md-4">
+              <article class="glass">
+                <div class="step">3</div>
+                <h3 class="h5">Gestiona</h3>
+                <p class="text-muted mb-0">
+                  Los docentes califican y toman lista; estudiantes y acudientes consultan en línea.
+                </p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Respuestas desplegadas para que toda la información esté visible. -->
+      <section id="faq">
+        <div class="container faq-container">
+          <div class="text-center mb-4">
+            <h2 class="fw-bold">Preguntas frecuentes</h2>
+          </div>
+          <div class="accordion" id="faqAcc">
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faq-heading-1">
+                <button
+                  class="accordion-button"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#faq-answer-1"
+                  aria-expanded="true"
+                  aria-controls="faq-answer-1"
+                >
+                  ¿Mis datos se mezclan con los de otras instituciones?
+                </button>
+              </h3>
+              <div
+                id="faq-answer-1"
+                class="accordion-collapse collapse show"
+                aria-labelledby="faq-heading-1"
+              >
+                <div class="accordion-body text-muted">
+                  No. Cada institución trabaja aislada de las demás.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faq-heading-2">
+                <button
+                  class="accordion-button"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#faq-answer-2"
+                  aria-expanded="true"
+                  aria-controls="faq-answer-2"
+                >
+                  ¿Los acudientes se enteran de las inasistencias?
+                </button>
+              </h3>
+              <div
+                id="faq-answer-2"
+                class="accordion-collapse collapse show"
+                aria-labelledby="faq-heading-2"
+              >
+                <div class="accordion-body text-muted">
+                  Sí. Si un estudiante falta sin justificar, el acudiente recibe una alerta en su módulo.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faq-heading-3">
+                <button
+                  class="accordion-button"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#faq-answer-3"
+                  aria-expanded="true"
+                  aria-controls="faq-answer-3"
+                >
+                  ¿Se pueden cambiar las notas sin dejar rastro?
+                </button>
+              </h3>
+              <div
+                id="faq-answer-3"
+                class="accordion-collapse collapse show"
+                aria-labelledby="faq-heading-3"
+              >
+                <div class="accordion-body text-muted">
+                  No. Cada modificación de calificaciones o datos sensibles queda en el historial de auditoría.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faq-heading-4">
+                <button
+                  class="accordion-button"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#faq-answer-4"
+                  aria-expanded="true"
+                  aria-controls="faq-answer-4"
+                >
+                  ¿Puedo personalizar la escala de notas y los periodos?
+                </button>
+              </h3>
+              <div
+                id="faq-answer-4"
+                class="accordion-collapse collapse show"
+                aria-labelledby="faq-heading-4"
+              >
+                <div class="accordion-body text-muted">
+                  Sí, junto con el logo y las firmas institucionales de tus boletines.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Información de cierre de la página. -->
+    <footer>
+      <div class="container d-flex flex-wrap justify-content-between gap-2">
+        <span><b class="grad">ZETTA</b> · Gestión académica</span>
+        <span>© 2026 ZETTA</span>
+      </div>
+    </footer>
+  </body>
+</html>
