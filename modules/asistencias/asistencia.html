@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="ZETTA: módulo de control de asistencia.">
+    <title>Asistencia · ZETTA</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2338bdf8'/%3E%3Ctext x='50' y='70' font-size='62' font-weight='700' text-anchor='middle' fill='%230f172a'%3EZ%3C/text%3E%3C/svg%3E"
+    >
+    <link rel="stylesheet" href="../../Landing_Peage/vendor/bootstrap/bootstrap.min.css">
+    <!-- Se reutiliza la identidad visual de la landing. -->
+    <link rel="stylesheet" href="/Landing_Peage/css/styles.css">
+    <!-- Estilos propios del módulo de asistencia. -->
+    <link rel="stylesheet" href="/modules/asistencias/asistencia.css">
+    <script src="vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+  </head>
+  <body>
+    <!-- Barra isla flotante: menú de módulos. -->
+    <nav class="navbar navbar-expand-md island" aria-label="Navegación de módulos">
+      <a class="navbar-brand fw-bold grad" href="index.html">ZETTA</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#menu"
+        aria-controls="menu"
+        aria-expanded="false"
+        aria-label="Abrir o cerrar el menú"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link" href="matriculas.html">Matrículas</a></li>
+          <li class="nav-item"><a class="nav-link" href="academico.html">Académico</a></li>
+          <li class="nav-item"><a class="nav-link active" href="asistencia.html" aria-current="page">Asistencia</a></li>
+          <li class="nav-item"><a class="nav-link" href="ajustes.html">Ajustes</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <span class="user-chip" id="usuarioActual">
+            <span class="avatar" aria-hidden="true"></span>
+            <span class="user-name">Usuario</span>
+          </span>
+          <a class="btn btn-ghost btn-sm px-3" href="#">Cerrar sesión</a>
+        </div>
+      </div>
+    </nav>
+
+    <main class="module">
+      <!-- Encabezado del módulo. -->
+      <header class="container module-head">
+        <div class="row align-items-end g-3">
+          <div class="col-lg-8">
+            <h1 class="fw-bold">Control de <span class="grad">asistencia</span></h1>
+            <p class="lead mb-0">Toma lista por asignatura y revisa las inasistencias.</p>
+          </div>
+          <div class="col-lg-4 d-flex justify-content-lg-end gap-2">
+            <button class="btn btn-ghost px-4" type="button" id="btnMarcarTodos">Marcar todos presentes</button>
+            <button class="btn btn-zetta px-4" type="button" id="btnGuardar">Guardar asistencia</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Filtros de la lista. -->
+      <section class="container block" aria-label="Filtros">
+        <div class="glass filters">
+          <div class="row g-3 align-items-end">
+            <div class="col-6 col-lg-3">
+              <label class="form-label" for="filtroCurso">Curso</label>
+              <select class="form-select field" id="filtroCurso">
+                <option value="" selected>Selecciona un curso</option>
+              </select>
+            </div>
+            <div class="col-6 col-lg-3">
+              <label class="form-label" for="filtroAsignatura">Asignatura</label>
+              <select class="form-select field" id="filtroAsignatura">
+                <option value="" selected>Selecciona una asignatura</option>
+              </select>
+            </div>
+            <div class="col-6 col-lg-2">
+              <label class="form-label" for="filtroPeriodo">Periodo</label>
+              <select class="form-select field" id="filtroPeriodo">
+                <option value="" selected>Periodo</option>
+              </select>
+            </div>
+            <div class="col-6 col-lg-2">
+              <label class="form-label" for="filtroFecha">Fecha</label>
+              <input class="form-control field" type="date" id="filtroFecha">
+            </div>
+            <div class="col-12 col-lg-2">
+              <button class="btn btn-zetta w-100" type="button" id="btnCargar">Cargar lista</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Resumen de la sesión. -->
+      <section class="container block" aria-label="Resumen de asistencia">
+        <div class="row g-3 text-center">
+          <div class="col-6 col-md-3">
+            <div class="glass stat stat-presente"><b id="totPresente">–</b>Presentes</div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="glass stat stat-ausente"><b id="totAusente">–</b>Ausentes</div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="glass stat stat-excusado"><b id="totExcusado">–</b>Excusados</div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="glass stat stat-retardo"><b id="totRetardo">–</b>Retardos</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pestañas: registro, historial y alertas. -->
+      <section class="container block" aria-label="Asistencia">
+        <ul class="nav nav-pills tabs-zetta mb-3" id="tabsAsistencia" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-registro" data-bs-toggle="pill" data-bs-target="#panel-registro" type="button" role="tab" aria-controls="panel-registro" aria-selected="true">Registro diario</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-historial" data-bs-toggle="pill" data-bs-target="#panel-historial" type="button" role="tab" aria-controls="panel-historial" aria-selected="false">Historial</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-alertas" data-bs-toggle="pill" data-bs-target="#panel-alertas" type="button" role="tab" aria-controls="panel-alertas" aria-selected="false">
+              Alertas <span class="badge-count" id="contadorAlertas">0</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Registro diario: lista de estudiantes con estado. -->
+          <div class="tab-pane fade show active" id="panel-registro" role="tabpanel" aria-labelledby="tab-registro" tabindex="0">
+            <div class="glass table-card">
+              <div class="legend" aria-label="Leyenda de estados">
+                <span class="dot dot-presente"></span>Presente
+                <span class="dot dot-ausente"></span>Ausente
+                <span class="dot dot-excusado"></span>Excusado
+                <span class="dot dot-retardo"></span>Retardo
+              </div>
+              <div class="table-responsive">
+                <table class="table table-zetta align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="col-num">#</th>
+                      <th scope="col">Estudiante</th>
+                      <th scope="col">Documento</th>
+                      <th scope="col">Estado</th>
+                      <th scope="col">Observación</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyRegistro">
+                    <!-- Las filas se insertan desde la base de datos con la plantilla de abajo. -->
+                    <tr class="empty-row">
+                      <td colspan="5">
+                        <div class="empty">
+                          <div class="empty-icon" aria-hidden="true">✓</div>
+                          <h3 class="h6">Aún no hay una lista cargada</h3>
+                          <p class="mb-0">Elige curso, asignatura y fecha, y pulsa “Cargar lista”.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Historial de asistencia. -->
+          <div class="tab-pane fade" id="panel-historial" role="tabpanel" aria-labelledby="tab-historial" tabindex="0">
+            <div class="glass table-card">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label" for="histEstudiante">Estudiante</label>
+                  <input class="form-control field" type="search" id="histEstudiante" placeholder="Nombre o documento">
+                </div>
+                <div class="col-6 col-md-3">
+                  <label class="form-label" for="histDesde">Desde</label>
+                  <input class="form-control field" type="date" id="histDesde">
+                </div>
+                <div class="col-6 col-md-3">
+                  <label class="form-label" for="histHasta">Hasta</label>
+                  <input class="form-control field" type="date" id="histHasta">
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-zetta align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col">Fecha</th>
+                      <th scope="col">Estudiante</th>
+                      <th scope="col">Asignatura</th>
+                      <th scope="col">Estado</th>
+                      <th scope="col">Observación</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyHistorial">
+                    <tr class="empty-row">
+                      <td colspan="5">
+                        <div class="empty">
+                          <div class="empty-icon" aria-hidden="true">◷</div>
+                          <h3 class="h6">Sin registros para mostrar</h3>
+                          <p class="mb-0">Usa los filtros para consultar asistencias anteriores.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alertas por inasistencia sin justificar. -->
+          <div class="tab-pane fade" id="panel-alertas" role="tabpanel" aria-labelledby="tab-alertas" tabindex="0">
+            <div class="glass table-card">
+              <div class="table-responsive">
+                <table class="table table-zetta align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col">Fecha</th>
+                      <th scope="col">Estudiante</th>
+                      <th scope="col">Asignatura</th>
+                      <th scope="col">Acudiente</th>
+                      <th scope="col">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyAlertas">
+                    <tr class="empty-row">
+                      <td colspan="5">
+                        <div class="empty">
+                          <div class="empty-icon" aria-hidden="true">!</div>
+                          <h3 class="h6">No hay inasistencias sin justificar</h3>
+                          <p class="mb-0">Cuando un estudiante falte sin excusa, aparecerá aquí y se avisará a su acudiente.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Plantilla de fila de estudiante (se clona al conectar la base de datos). -->
+    <template id="plantillaFila">
+      <tr data-matricula-id="">
+        <td class="col-num"></td>
+        <td>
+          <div class="student">
+            <span class="avatar" aria-hidden="true"></span>
+            <span class="student-name"></span>
+          </div>
+        </td>
+        <td class="student-doc"></td>
+        <td>
+          <div class="estado-group" role="radiogroup" aria-label="Estado de asistencia">
+            <input class="btn-check" type="radio" name="estado-ID" id="presente-ID" value="Presente">
+            <label class="estado estado-presente" for="presente-ID">Presente</label>
+
+            <input class="btn-check" type="radio" name="estado-ID" id="ausente-ID" value="Ausente">
+            <label class="estado estado-ausente" for="ausente-ID">Ausente</label>
+
+            <input class="btn-check" type="radio" name="estado-ID" id="excusado-ID" value="Excusado">
+            <label class="estado estado-excusado" for="excusado-ID">Excusado</label>
+
+            <input class="btn-check" type="radio" name="estado-ID" id="retardo-ID" value="Retardo">
+            <label class="estado estado-retardo" for="retardo-ID">Retardo</label>
+          </div>
+        </td>
+        <td>
+          <input class="form-control field field-sm" type="text" placeholder="Opcional" aria-label="Observación">
+        </td>
+      </tr>
+    </template>
+
+    <footer>
+      <div class="container d-flex flex-wrap justify-content-between gap-2">
+        <span><b class="grad">ZETTA</b> · Gestión académica</span>
+        <span>© 2026 ZETTA</span>
+      </div>
+    </footer>
+  </body>
+</html>
