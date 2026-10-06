@@ -120,6 +120,6 @@ Esto son anotaciones importantes:
 
 1. Para los correos de maestros y estudiantes, se debe generar automáticamente, con el dominio de la institución.
 
-2.El nombre de la institución solo lo puede agregar el administrador de la escuela y solo puede cambiarse en 60 días. 
+2. El nombre de la institución solo lo puede agregar el administrador de la escuela y solo puede cambiarse en 60 días. 
 
 3. Debe de haber un campo donde el administrador de la institución deba agregar el dominio de la institución y con este generar los correos automáticamente (Este correo el estudiante puede editarlo) 
