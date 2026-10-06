@@ -1,0 +1,358 @@
+/* Módulo de Asistencia: extiende styles.css sin modificar la identidad de ZETTA. */
+:root {
+  --presente: #34d399;
+  --ausente: #f87171;
+  --excusado: #fbbf24;
+  --retardo: #fb923c;
+}
+
+/* Estructura general del módulo. */
+.module section {
+  padding: 0;
+}
+
+.module-head {
+  padding-top: 130px;
+  padding-bottom: 24px;
+}
+
+.block {
+  padding-bottom: 20px !important;
+}
+
+.module-head h1 {
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+}
+
+.module .glass:hover {
+  transform: none;
+}
+
+/* Enlace activo de la barra isla. */
+.island .nav-link.active {
+  color: var(--text-primary);
+  background: rgba(56, 189, 248, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.45);
+}
+
+/* Usuario en la barra isla. */
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  border: 1px solid var(--border-glass);
+  border-radius: 999px;
+  background: var(--surface-glass);
+}
+
+.avatar {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--indigo));
+}
+
+/* Campos de formulario con el estilo de vidrio. */
+.form-label {
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.field,
+.form-select.field {
+  color: var(--text-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  background-color: var(--surface-glass);
+}
+
+.field::placeholder {
+  color: var(--text-muted);
+}
+
+.field:focus,
+.form-select.field:focus {
+  color: var(--text-primary);
+  border-color: var(--cyan);
+  background-color: rgba(56, 189, 248, 0.08);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.form-select.field option {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+}
+
+.field-sm {
+  min-width: 160px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+input[type="date"].field {
+  color-scheme: dark;
+}
+
+.filters {
+  height: auto;
+}
+
+/* Tarjetas de resumen por estado. */
+.stat {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.stat b {
+  color: var(--text-primary);
+}
+
+.stat-presente { border-top: 3px solid var(--presente); }
+.stat-ausente { border-top: 3px solid var(--ausente); }
+.stat-excusado { border-top: 3px solid var(--excusado); }
+.stat-retardo { border-top: 3px solid var(--retardo); }
+
+.stat-presente b { color: var(--presente); }
+.stat-ausente b { color: var(--ausente); }
+.stat-excusado b { color: var(--excusado); }
+.stat-retardo b { color: var(--retardo); }
+
+/* Pestañas. */
+.tabs-zetta {
+  gap: 6px;
+}
+
+.tabs-zetta .nav-link {
+  color: var(--text-muted);
+  border: 1px solid var(--border-glass);
+  border-radius: 999px;
+  background: var(--surface-glass);
+}
+
+.tabs-zetta .nav-link:hover {
+  color: var(--text-primary);
+  border-color: var(--cyan);
+}
+
+.tabs-zetta .nav-link.active {
+  color: var(--bg-primary);
+  font-weight: 600;
+  border-color: transparent;
+  background: linear-gradient(90deg, var(--cyan), var(--indigo));
+}
+
+.tabs-zetta .nav-link:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+.badge-count {
+  display: inline-block;
+  min-width: 22px;
+  margin-left: 6px;
+  padding: 1px 7px;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  text-align: center;
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.35);
+}
+
+.tabs-zetta .nav-link.active .badge-count {
+  color: var(--bg-primary);
+  background: rgba(15, 23, 42, 0.2);
+}
+
+/* Tabla con superficie de vidrio. */
+.table-card {
+  height: auto;
+  padding: 20px;
+}
+
+.table-zetta {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text-primary);
+  --bs-table-border-color: rgba(255, 255, 255, 0.1);
+  --bs-table-hover-bg: rgba(56, 189, 248, 0.06);
+  --bs-table-hover-color: var(--text-primary);
+}
+
+.table-zetta thead th {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.table-zetta tbody tr:not(.empty-row):hover {
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.col-num {
+  width: 48px;
+  color: var(--text-muted);
+}
+
+.student {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-doc {
+  color: var(--text-muted);
+}
+
+/* Leyenda de estados. */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-left: 8px;
+  border-radius: 50%;
+}
+
+.dot-presente { background: var(--presente); }
+.dot-ausente { background: var(--ausente); }
+.dot-excusado { background: var(--excusado); }
+.dot-retardo { background: var(--retardo); }
+
+/* Selector de estado por estudiante. */
+.estado-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.estado {
+  padding: 5px 12px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 1px solid var(--border-glass);
+  border-radius: 999px;
+  background: var(--surface-glass);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.estado:hover {
+  color: var(--text-primary);
+}
+
+.btn-check:focus-visible + .estado {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.btn-check:checked + .estado-presente {
+  color: var(--presente);
+  border-color: var(--presente);
+  background: rgba(52, 211, 153, 0.15);
+}
+
+.btn-check:checked + .estado-ausente {
+  color: var(--ausente);
+  border-color: var(--ausente);
+  background: rgba(248, 113, 113, 0.15);
+}
+
+.btn-check:checked + .estado-excusado {
+  color: var(--excusado);
+  border-color: var(--excusado);
+  background: rgba(251, 191, 36, 0.15);
+}
+
+.btn-check:checked + .estado-retardo {
+  color: var(--retardo);
+  border-color: var(--retardo);
+  background: rgba(251, 146, 60, 0.15);
+}
+
+/* Estado vacío. */
+.empty {
+  padding: 40px 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.empty h3 {
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.empty-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
+  color: var(--cyan);
+  font-size: 1.4rem;
+  font-weight: 700;
+  place-items: center;
+  border: 1px dashed rgba(56, 189, 248, 0.6);
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.empty-row td {
+  border-bottom: 0;
+}
+
+/* Pie de página al final aunque haya poco contenido. */
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.module {
+  flex: 1;
+  padding-bottom: 48px;
+}
+
+/* Adaptación a pantallas pequeñas. */
+@media (max-width: 767.98px) {
+  .module-head {
+    padding-top: 110px;
+  }
+
+  .module-head .d-flex {
+    flex-wrap: wrap;
+  }
+
+  .module-head .btn {
+    flex: 1 1 100%;
+  }
+
+  .user-chip {
+    margin-bottom: 8px;
+  }
+
+  .island .navbar-collapse .d-flex {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .table-card {
+    padding: 14px;
+  }
+}
