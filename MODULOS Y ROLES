@@ -1,29 +1,34 @@
 |----------------------------------------
-SuperAdmin (SaaS) | • Colegios
+SuperAdmin (SaaS) |  
+• Colegios
 • Métricas SaaS
 • Facturación
 •  Audit Logs 
 
-Admin Colegio | • Dashboard
+Admin Colegio | 
+• Dashboard
 • Matrículas y Usuarios
 • Cursos y Materias
 • Cierre y Boletines
 • Excusas Globales
 • Ajustes Institucionales
 
-Profesor | •  Mis Cursos
+Profesor | 
+•  Mis Cursos
 • Planilla de Notas
 • Toma de Asistencia
 • Observador de Aula
 • Mi Horario 
 
-Estudiante | • Inicio
+Estudiante | 
+• Inicio
 • Mis Notas
 • Mi Asistencia
 • Mi Observador
 • Mis Boletines 
 
-Acudiente | • Mis Acudidos
+Acudiente | 
+• Mis Acudidos
 • Notas y Avance
 • Asistencia y Excusas
 • Observador
