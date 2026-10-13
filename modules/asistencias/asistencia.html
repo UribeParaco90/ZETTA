@@ -11,15 +11,15 @@
     >
     <link rel="stylesheet" href="../../landing_page/vendor/bootstrap/bootstrap.min.css">
     <!-- Se reutiliza la identidad visual de la landing. -->
-    <link rel="stylesheet" href="/landing_page/css/styles.css">
+    <link rel="stylesheet" href="../../landing_page/css/styles.css">
     <!-- Estilos propios del módulo de asistencia. -->
-    <link rel="stylesheet" href="/modules/asistencias/asistencia.css">
-    <script src="vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <link rel="stylesheet" href="asistencia.css">
+    <script src="../../landing_page/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
   </head>
   <body>
     <!-- Barra isla flotante: menú de módulos. -->
     <nav class="navbar navbar-expand-md island" aria-label="Navegación de módulos">
-      <a class="navbar-brand fw-bold grad" href="index.html">ZETTA</a>
+      <a class="navbar-brand fw-bold grad" href="../../landing_page/index.html">ZETTA</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -33,17 +33,16 @@
       </button>
       <div class="collapse navbar-collapse" id="menu">
         <ul class="navbar-nav mx-auto">
-          <li class="nav-item"><a class="nav-link" href="matriculas.html">Matrículas</a></li>
-          <li class="nav-item"><a class="nav-link" href="academico.html">Académico</a></li>
+          <li class="nav-item"><a class="nav-link" href="../../landing_page/index.html#modulos">Módulos</a></li>
           <li class="nav-item"><a class="nav-link active" href="asistencia.html" aria-current="page">Asistencia</a></li>
-          <li class="nav-item"><a class="nav-link" href="ajustes.html">Ajustes</a></li>
+          <li class="nav-item"><a class="nav-link" href="../certificaciones/certificado-calificaciones.html">Certificaciones</a></li>
         </ul>
         <div class="d-flex align-items-center gap-2">
           <span class="user-chip" id="usuarioActual">
             <span class="avatar" aria-hidden="true"></span>
             <span class="user-name">Usuario</span>
           </span>
-          <a class="btn btn-ghost btn-sm px-3" href="#">Cerrar sesión</a>
+          <a class="btn btn-ghost btn-sm px-3" href="../../landing_page/login.html">Iniciar sesión</a>
         </div>
       </div>
     </nav>

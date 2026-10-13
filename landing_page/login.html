@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Acceso de demostración por rol a ZETTA Gestión Académica.">
+    <title>Iniciar sesión · ZETTA</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2338bdf8'/%3E%3Ctext x='50' y='70' font-size='62' font-weight='700' text-anchor='middle' fill='%230f172a'%3EZ%3C/text%3E%3C/svg%3E"
+    >
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/login.css">
+    <script src="js/demo-accounts.js" defer></script>
+    <script src="js/login.js" defer></script>
+  </head>
+  <body class="login-page">
+    <header class="login-topbar">
+      <a class="navbar-brand fw-bold grad" href="index.html" aria-label="ZETTA, ir al inicio">ZETTA</a>
+      <a class="back-link" href="index.html">Volver al inicio</a>
+    </header>
+
+    <main class="login-layout">
+      <section class="login-card glass" aria-labelledby="login-title">
+        <div class="login-heading">
+          <span class="login-mark" aria-hidden="true">Z</span>
+          <p class="eyebrow mb-2">PORTAL ACADÉMICO</p>
+          <h1 id="login-title" class="h2 fw-bold mb-2">Qué bueno verte</h1>
+          <p class="text-muted mb-0">Elige tu perfil e ingresa a tu espacio académico.</p>
+        </div>
+
+        <form id="loginForm" class="login-form" novalidate>
+          <div>
+            <label class="form-label" for="role">Perfil de acceso</label>
+            <select class="form-select field" id="role" name="role" required>
+              <option value="" selected disabled>Selecciona tu perfil</option>
+              <option value="SuperAdmin">Superadministrador</option>
+              <option value="Admin">Administrador</option>
+              <option value="Profesor">Profesor</option>
+              <option value="Estudiante">Estudiante</option>
+              <option value="Acudiente">Acudiente</option>
+            </select>
+            <p class="role-description" id="roleDescription" aria-live="polite">
+              El perfil solo describe el alcance previsto; no concede permisos en otros módulos.
+            </p>
+            <div class="role-scope" id="roleScope" hidden>
+              <span>Alcance previsto <span class="scope-note">(informativo)</span></span>
+              <ul class="role-permissions" id="rolePermissions" aria-live="polite"></ul>
+            </div>
+          </div>
+          <div>
+            <label class="form-label" for="email">Correo electrónico</label>
+            <input
+              class="form-control field"
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="username"
+              placeholder="nombre@institucion.edu.co"
+              required
+            >
+          </div>
+          <div>
+            <label class="form-label" for="password">Contraseña</label>
+            <div class="password-field">
+              <input
+                class="form-control field"
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Escribe tu contraseña"
+                required
+              >
+              <button class="password-toggle" id="togglePassword" type="button" aria-pressed="false">
+                Mostrar
+              </button>
+            </div>
+          </div>
+          <p class="form-feedback" id="loginFeedback" role="alert" aria-live="polite"></p>
+          <button class="btn btn-zetta btn-lg w-100 login-submit" type="submit">Ingresar</button>
+        </form>
+
+        <a
+          class="btn btn-ghost w-100 mt-3"
+          id="continueToCertificates"
+          href="../modules/certificaciones/certificado-calificaciones.html"
+          hidden
+        >
+          Ir a certificaciones
+        </a>
+
+        <p class="account-prompt">
+          ¿Aún no tienes cuenta?
+          <a href="registro.html">Crear cuenta de demostración</a>
+        </p>
+
+        <aside class="demo-note" aria-label="Información de seguridad de la demostración">
+          <span class="demo-indicator" aria-hidden="true"></span>
+          <div>
+            <b>Prototipo local, no autenticación segura</b>
+            <p class="mb-0">
+              Las cuentas se guardan solo en este navegador. El perfil seleccionado no concede permisos reales en los módulos.
+              No uses datos reales ni contraseñas personales.
+            </p>
+          </div>
+        </aside>
+
+        <details class="demo-accounts">
+          <summary>Ver cuentas de prueba por perfil</summary>
+          <p class="demo-accounts-intro">
+            Usa estos datos para entrar como cada tipo de usuario. Son cuentas ficticias:
+            los módulos y permisos todavía no están conectados.
+          </p>
+          <ul class="demo-account-list">
+            <li>
+              <div class="demo-account-heading">
+                <b>Superadministrador</b>
+                <span class="demo-account-role">Gestión global</span>
+              </div>
+              <div class="demo-account-credentials">
+                <span>Correo</span><code>superadmin@demo.zetta.local</code>
+                <span>Contraseña</span><code>SuperDemo2026!</code>
+              </div>
+              <button
+                class="btn btn-ghost btn-sm demo-account-use"
+                type="button"
+                data-demo-role="SuperAdmin"
+                data-demo-email="superadmin@demo.zetta.local"
+                data-demo-password="SuperDemo2026!"
+              >Usar esta cuenta</button>
+            </li>
+            <li>
+              <div class="demo-account-heading">
+                <b>Administrador</b>
+                <span class="demo-account-role">Gestión institucional</span>
+              </div>
+              <div class="demo-account-credentials">
+                <span>Correo</span><code>admin@demo.zetta.local</code>
+                <span>Contraseña</span><code>AdminDemo2026!</code>
+              </div>
+              <button
+                class="btn btn-ghost btn-sm demo-account-use"
+                type="button"
+                data-demo-role="Admin"
+                data-demo-email="admin@demo.zetta.local"
+                data-demo-password="AdminDemo2026!"
+              >Usar esta cuenta</button>
+            </li>
+            <li>
+              <div class="demo-account-heading">
+                <b>Profesor</b>
+                <span class="demo-account-role">Gestión académica</span>
+              </div>
+              <div class="demo-account-credentials">
+                <span>Correo</span><code>profesor@demo.zetta.local</code>
+                <span>Contraseña</span><code>ProfesorDemo2026!</code>
+              </div>
+              <button
+                class="btn btn-ghost btn-sm demo-account-use"
+                type="button"
+                data-demo-role="Profesor"
+                data-demo-email="profesor@demo.zetta.local"
+                data-demo-password="ProfesorDemo2026!"
+              >Usar esta cuenta</button>
+            </li>
+            <li>
+              <div class="demo-account-heading">
+                <b>Estudiante</b>
+                <span class="demo-account-role">Consulta académica personal</span>
+              </div>
+              <div class="demo-account-credentials">
+                <span>Correo</span><code>estudiante@demo.zetta.local</code>
+                <span>Contraseña</span><code>EstudianteDemo2026!</code>
+              </div>
+              <button
+                class="btn btn-ghost btn-sm demo-account-use"
+                type="button"
+                data-demo-role="Estudiante"
+                data-demo-email="estudiante@demo.zetta.local"
+                data-demo-password="EstudianteDemo2026!"
+              >Usar esta cuenta</button>
+            </li>
+            <li>
+              <div class="demo-account-heading">
+                <b>Acudiente</b>
+                <span class="demo-account-role">Seguimiento de acudidos</span>
+              </div>
+              <div class="demo-account-credentials">
+                <span>Correo</span><code>acudiente@demo.zetta.local</code>
+                <span>Contraseña</span><code>AcudienteDemo2026!</code>
+              </div>
+              <button
+                class="btn btn-ghost btn-sm demo-account-use"
+                type="button"
+                data-demo-role="Acudiente"
+                data-demo-email="acudiente@demo.zetta.local"
+                data-demo-password="AcudienteDemo2026!"
+              >Usar esta cuenta</button>
+            </li>
+          </ul>
+        </details>
+      </section>
+
+    </main>
+
+    <footer class="login-footer">
+      <span><b class="grad">ZETTA</b> · Gestión académica</span>
+      <span>© 2026 ZETTA · Prototipo de demostración</span>
+    </footer>
+  </body>
+</html>

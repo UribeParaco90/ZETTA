@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Módulo de demostración para generar certificados de calificaciones ZETTA.">
+    <title>Certificaciones · ZETTA</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2338bdf8'/%3E%3Ctext x='50' y='70' font-size='62' font-weight='700' text-anchor='middle' fill='%230f172a'%3EZ%3C/text%3E%3C/svg%3E"
+    >
+    <link rel="stylesheet" href="../../landing_page/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../landing_page/css/styles.css">
+    <link rel="stylesheet" href="certificacion.css">
+    <script src="../../landing_page/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="certificado-calificaciones.js" defer></script>
+  </head>
+  <body class="cert-page">
+    <nav class="navbar navbar-expand-md island" aria-label="Navegación de módulos">
+      <a class="navbar-brand fw-bold grad" href="../../landing_page/index.html">ZETTA</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#menuCertificaciones"
+        aria-controls="menuCertificaciones"
+        aria-expanded="false"
+        aria-label="Abrir o cerrar el menú"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menuCertificaciones">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link" href="../../landing_page/index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="../asistencias/asistencia.html">Asistencia</a></li>
+          <li class="nav-item"><a class="nav-link active" href="certificado-calificaciones.html" aria-current="page">Certificaciones</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <span class="user-chip">
+            <span class="avatar" aria-hidden="true"></span>
+            <span id="userName">Demo</span>
+          </span>
+          <button class="btn btn-ghost btn-sm px-3" id="logoutButton" type="button">Salir</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="cert-module">
+      <header class="container cert-head">
+        <div>
+          <span class="eyebrow">GESTIÓN ACADÉMICA</span>
+          <h1 class="fw-bold mt-2">Certificado de <span class="grad">calificaciones</span></h1>
+          <p class="lead mb-0">Selecciona estudiante y periodo para consultar y preparar su certificado.</p>
+        </div>
+        <span class="demo-badge"><span aria-hidden="true">●</span> Datos de demostración</span>
+      </header>
+
+      <section class="container cert-content" aria-label="Generación de certificado">
+        <div class="glass cert-controls">
+          <div class="section-heading">
+            <div>
+              <h2 class="h5 fw-bold mb-1">Criterios de consulta</h2>
+              <p class="text-muted mb-0">Los registros ilustrativos siguen los campos del esquema académico.</p>
+            </div>
+            <span class="step" aria-hidden="true">1</span>
+          </div>
+          <form id="certificateForm" class="row g-3 align-items-end">
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="studentSelect">Estudiante</label>
+              <select class="form-select field" id="studentSelect" required>
+                <option value="">Selecciona un estudiante</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label" for="periodSelect">Periodo</label>
+              <select class="form-select field" id="periodSelect" required>
+                <option value="1">Periodo 1</option>
+                <option value="2">Periodo 2</option>
+                <option value="3">Periodo 3</option>
+                <option value="4">Periodo 4</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-3">
+              <button class="btn btn-zetta w-100" type="submit">Generar certificado</button>
+            </div>
+          </form>
+          <p class="cert-feedback" id="certificateFeedback" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="certificate-result" id="certificateResult" hidden>
+          <div class="result-toolbar">
+            <div>
+              <span class="step" aria-hidden="true">2</span>
+              <div>
+                <h2 class="h5 fw-bold mb-1">Vista previa</h2>
+                <p class="text-muted mb-0">Revisa los datos y usa imprimir para guardar una copia en PDF.</p>
+              </div>
+            </div>
+            <button class="btn btn-ghost px-4" id="printButton" type="button">Imprimir / Guardar PDF</button>
+          </div>
+
+          <article class="certificate-sheet" id="certificateSheet" aria-label="Vista previa del certificado">
+            <div class="certificate-watermark" aria-hidden="true">DEMOSTRACIÓN</div>
+            <header class="certificate-header">
+              <div class="certificate-brand">
+                <span class="certificate-mark" aria-hidden="true">Z</span>
+                <div>
+                  <p class="certificate-institution mb-1" id="institutionName"></p>
+                  <p class="certificate-school mb-0">Gestión académica · Registro de calificaciones</p>
+                </div>
+              </div>
+              <span class="certificate-label">EJEMPLAR DE DEMOSTRACIÓN</span>
+            </header>
+
+            <div class="certificate-title">
+              <p class="eyebrow mb-2">CERTIFICACIÓN ACADÉMICA</p>
+              <h2>Certificado de calificaciones</h2>
+              <p class="mb-0" id="certificatePeriod"></p>
+            </div>
+
+            <p class="certificate-intro">
+              Se certifica, para fines informativos, que los siguientes datos corresponden al registro académico de:
+            </p>
+
+            <dl class="student-details">
+              <div><dt>Estudiante</dt><dd id="certificateStudent"></dd></div>
+              <div><dt>Documento</dt><dd id="certificateDocument"></dd></div>
+              <div><dt>Curso</dt><dd id="certificateCourse"></dd></div>
+              <div><dt>Año lectivo</dt><dd id="certificateYear"></dd></div>
+            </dl>
+
+            <div class="grades-table-wrap">
+              <table class="table grades-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col">Área / asignatura</th>
+                    <th scope="col">Calificación final</th>
+                    <th scope="col">Escala</th>
+                  </tr>
+                </thead>
+                <tbody id="gradesBody"></tbody>
+                <tfoot>
+                  <tr>
+                    <th scope="row">Promedio general (promedio simple de áreas)</th>
+                    <td id="overallAverage"></td>
+                    <td>0,00 – 5,00</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div class="certificate-footnote">
+              <p id="gradeMethod" class="mb-1"></p>
+              <p class="mb-0"><b>Folio de demostración:</b> <span id="certificateFolio"></span></p>
+            </div>
+
+            <footer class="certificate-signature">
+              <div class="signature-line"></div>
+              <b>Secretaría académica</b>
+              <span>Firma de muestra · Sin validez oficial</span>
+            </footer>
+            <p class="certificate-disclaimer mb-0">
+              Documento generado con datos locales ficticios. No es un certificado oficial ni reemplaza los registros de la institución.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="cert-footer">
+      <div class="container d-flex flex-wrap justify-content-between gap-2">
+        <span><b class="grad">ZETTA</b> · Gestión académica</span>
+        <span>Entorno local de demostración · © 2026</span>
+      </div>
+    </footer>
+  </body>
+</html>
