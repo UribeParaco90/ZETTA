@@ -30,6 +30,11 @@ El sistema utiliza un modelo de Control de Acceso Basado en Roles (RBAC) con sop
   - Parámetros Institucionales: Escala de valoración académica, número de periodos lectivos y personalización de marca (logos, firmas institucionales).
   - Historial de Cambios: Registro de auditoría (Log) de modificaciones realizadas a las calificaciones o datos sensibles.
 
+  5. Módulo de Certificaciones
+  - Certificado de calificaciones: selección de estudiante y periodo, consulta de notas por asignatura y cálculo ponderado con la escala de 0 a 5.
+  - Vista previa imprimible: permite imprimir o guardar como PDF desde el navegador.
+  - Estado actual: interfaz de demostración con registros locales ficticios; no consulta la base de datos ni emite documentos oficiales.
+
 4. Diagrama y Estructura de la Base de Datos
 La arquitectura relacional utiliza claves primarias tipo UUID para garantizar la seguridad de los registros en entornos distribuidos.
 
