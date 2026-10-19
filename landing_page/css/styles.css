@@ -162,6 +162,24 @@ section {
   background: var(--surface-glass);
 }
 
+.certification-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 980px;
+  margin: 0 auto;
+  border-color: rgba(56, 189, 248, 0.35);
+  background: linear-gradient(120deg, rgba(56, 189, 248, 0.1), rgba(129, 140, 248, 0.08));
+}
+
+.eyebrow {
+  color: var(--cyan);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
 /* Componentes de Bootstrap con colores adaptados a ZETTA. */
 .accordion {
   --bs-accordion-bg: transparent;
@@ -301,6 +319,11 @@ footer {
   .hero {
     padding-top: 128px;
     padding-bottom: 32px;
+  }
+
+  .certification-callout {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 
