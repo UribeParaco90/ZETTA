@@ -15,6 +15,7 @@
     <!-- Estilos propios del módulo de asistencia. -->
     <link rel="stylesheet" href="asistencia.css">
     <script src="../../landing_page/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="asistencia.js" defer></script>
   </head>
   <body>
     <!-- Barra isla flotante: menú de módulos. -->
@@ -42,7 +43,7 @@
             <span class="avatar" aria-hidden="true"></span>
             <span class="user-name">Usuario</span>
           </span>
-          <a class="btn btn-ghost btn-sm px-3" href="../../landing_page/login.html">Iniciar sesión</a>
+          <button class="btn btn-ghost btn-sm px-3" id="logoutButton" type="button">Salir</button>
         </div>
       </div>
     </nav>
@@ -61,27 +62,22 @@
           </div>
         </div>
       </header>
+      <p class="container cert-feedback" id="feedbackAsistencia" role="status" aria-live="polite"></p>
 
       <!-- Filtros de la lista. -->
       <section class="container block" aria-label="Filtros">
         <div class="glass filters">
           <div class="row g-3 align-items-end">
-            <div class="col-6 col-lg-3">
+            <div class="col-6 col-lg-4">
               <label class="form-label" for="filtroCurso">Curso</label>
               <select class="form-select field" id="filtroCurso">
                 <option value="" selected>Selecciona un curso</option>
               </select>
             </div>
-            <div class="col-6 col-lg-3">
+            <div class="col-6 col-lg-4">
               <label class="form-label" for="filtroAsignatura">Asignatura</label>
               <select class="form-select field" id="filtroAsignatura">
                 <option value="" selected>Selecciona una asignatura</option>
-              </select>
-            </div>
-            <div class="col-6 col-lg-2">
-              <label class="form-label" for="filtroPeriodo">Periodo</label>
-              <select class="form-select field" id="filtroPeriodo">
-                <option value="" selected>Periodo</option>
               </select>
             </div>
             <div class="col-6 col-lg-2">
@@ -147,13 +143,12 @@
                       <th scope="col">Estudiante</th>
                       <th scope="col">Documento</th>
                       <th scope="col">Estado</th>
-                      <th scope="col">Observación</th>
                     </tr>
                   </thead>
                   <tbody id="tbodyRegistro">
                     <!-- Las filas se insertan desde la base de datos con la plantilla de abajo. -->
                     <tr class="empty-row">
-                      <td colspan="5">
+                      <td colspan="4">
                         <div class="empty">
                           <div class="empty-icon" aria-hidden="true">✓</div>
                           <h3 class="h6">Aún no hay una lista cargada</h3>
@@ -192,12 +187,11 @@
                       <th scope="col">Estudiante</th>
                       <th scope="col">Asignatura</th>
                       <th scope="col">Estado</th>
-                      <th scope="col">Observación</th>
                     </tr>
                   </thead>
                   <tbody id="tbodyHistorial">
                     <tr class="empty-row">
-                      <td colspan="5">
+                      <td colspan="4">
                         <div class="empty">
                           <div class="empty-icon" aria-hidden="true">◷</div>
                           <h3 class="h6">Sin registros para mostrar</h3>
@@ -231,7 +225,7 @@
                         <div class="empty">
                           <div class="empty-icon" aria-hidden="true">!</div>
                           <h3 class="h6">No hay inasistencias sin justificar</h3>
-                          <p class="mb-0">Cuando un estudiante falte sin excusa, aparecerá aquí y se avisará a su acudiente.</p>
+                          <p class="mb-0">Aquí puedes revisar las inasistencias registradas. Las notificaciones automáticas no están configuradas.</p>
                         </div>
                       </td>
                     </tr>
@@ -269,9 +263,6 @@
             <input class="btn-check" type="radio" name="estado-ID" id="retardo-ID" value="Retardo">
             <label class="estado estado-retardo" for="retardo-ID">Retardo</label>
           </div>
-        </td>
-        <td>
-          <input class="form-control field field-sm" type="text" placeholder="Opcional" aria-label="Observación">
         </td>
       </tr>
     </template>

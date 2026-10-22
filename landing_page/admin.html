@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Consola de administración de ZETTA y Neon.">
+    <title>Administración · ZETTA</title>
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="js/admin.js" defer></script>
+  </head>
+  <body class="admin-page">
+    <header class="admin-topbar">
+      <a class="navbar-brand fw-bold grad" href="/dashboard.html">ZETTA</a>
+      <div class="admin-topbar-actions">
+        <span id="adminUser"></span>
+        <span id="connectionState" role="status">Conectando…</span>
+        <button class="btn btn-ghost btn-sm" id="logoutButton" type="button">Salir</button>
+      </div>
+    </header>
+    <main class="admin-shell">
+      <aside class="admin-sidebar glass">
+        <p class="eyebrow">GESTIÓN ACADÉMICA</p>
+        <h1 class="h5 fw-bold">Datos</h1>
+        <nav id="entityNavigation" class="entity-navigation" aria-label="Secciones"></nav>
+        <a class="back-link mt-3 d-inline-block" href="/dashboard.html">Volver al panel</a>
+      </aside>
+      <section class="admin-content" aria-labelledby="entityTitle">
+        <div class="admin-heading">
+          <div>
+            <p class="eyebrow mb-2">ZETTA · NEON</p>
+            <h2 class="display-6 fw-bold mb-2" id="entityTitle">Cargando</h2>
+            <p class="text-muted mb-0" id="entityDescription">Registros dentro del alcance de tu perfil.</p>
+          </div>
+          <button class="btn btn-zetta" id="createRecord" type="button" disabled>＋ Nuevo registro</button>
+        </div>
+        <div class="admin-toolbar glass">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <span class="visually-hidden">Buscar en registros</span>
+            <input id="searchRecords" type="search" placeholder="Buscar…" autocomplete="off">
+          </label>
+          <button class="btn btn-ghost btn-sm" id="refreshRecords" type="button">Actualizar</button>
+          <span class="record-count" id="recordCount" aria-live="polite"></span>
+        </div>
+        <p class="admin-feedback" id="adminFeedback" role="status" aria-live="polite"></p>
+        <div class="table-card glass">
+          <div class="table-responsive">
+            <table class="table admin-table align-middle mb-0">
+              <thead id="recordsHead"></thead>
+              <tbody id="recordsBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyState" hidden>
+            <span class="empty-mark" aria-hidden="true">Z</span>
+            <h3 class="h5 fw-bold">Aún no hay registros</h3>
+            <p class="text-muted mb-0">Crea el primer registro de esta sección.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <dialog class="record-dialog" id="recordDialog" aria-labelledby="dialogTitle">
+      <form id="recordForm" class="record-dialog-form">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow mb-2">ZETTA · DATOS</p>
+            <h2 class="h4 fw-bold mb-0" id="dialogTitle">Nuevo registro</h2>
+          </div>
+          <button class="dialog-close" id="closeDialog" type="button" aria-label="Cerrar">×</button>
+        </div>
+        <div class="dialog-fields" id="dialogFields"></div>
+        <p class="admin-feedback" id="dialogFeedback" role="alert" aria-live="polite"></p>
+        <div class="dialog-actions">
+          <button class="btn btn-ghost" id="cancelDialog" type="button">Cancelar</button>
+          <button class="btn btn-zetta" id="saveRecord" type="submit">Guardar</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

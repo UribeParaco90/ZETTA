@@ -1,120 +1,80 @@
-CREATE DATABASE GestionAcademica;
-GO
+-- Esquema PostgreSQL para Neon.
+-- Ejecuta una vez sobre una base nueva; las tablas existentes no se modifican.
 
-USE GestionAcademica;
-GO
-
--- 1. INSTITUCIONES
-CREATE TABLE INSTITUCIONES (
-    id                UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    nombre            NVARCHAR(150)    NOT NULL,
-    nit_codigo        NVARCHAR(30)     NOT NULL,
-    plan_suscripcion  NVARCHAR(20)     NOT NULL,
-    CONSTRAINT PK_INSTITUCIONES PRIMARY KEY (id),
-    CONSTRAINT UQ_INSTITUCIONES_nit UNIQUE (nit_codigo),
-    CONSTRAINT CK_INSTITUCIONES_plan
+CREATE TABLE IF NOT EXISTS instituciones (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(150) NOT NULL,
+    nit_codigo VARCHAR(30) NOT NULL UNIQUE,
+    plan_suscripcion VARCHAR(20) NOT NULL
         CHECK (plan_suscripcion IN ('Lite', 'Standard', 'Enterprise'))
 );
-GO
 
--- 2. USUARIOS
-CREATE TABLE USUARIOS (
-    id              UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    institucion_id  UNIQUEIDENTIFIER NOT NULL,
-    documento       NVARCHAR(30)     NOT NULL,
-    nombre          NVARCHAR(80)     NOT NULL,
-    apellido        NVARCHAR(80)     NOT NULL,
-    email           NVARCHAR(150)    NOT NULL,
-    password_hash   NVARCHAR(255)    NOT NULL,
-    rol             NVARCHAR(20)     NOT NULL,
-    CONSTRAINT PK_USUARIOS PRIMARY KEY (id),
-    CONSTRAINT FK_USUARIOS_institucion
-        FOREIGN KEY (institucion_id) REFERENCES INSTITUCIONES(id),
-    CONSTRAINT UQ_USUARIOS_email UNIQUE (email),
-    CONSTRAINT UQ_USUARIOS_documento UNIQUE (institucion_id, documento),
-    CONSTRAINT CK_USUARIOS_rol
-        CHECK (rol IN ('SuperAdmin', 'Admin', 'Profesor', 'Estudiante', 'Acudiente'))
+CREATE TABLE IF NOT EXISTS usuarios (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    institucion_id UUID NOT NULL REFERENCES instituciones(id),
+    documento VARCHAR(30) NOT NULL,
+    nombre VARCHAR(80) NOT NULL,
+    apellido VARCHAR(80) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    rol VARCHAR(20) NOT NULL
+        CHECK (rol IN ('SuperAdmin', 'Admin', 'Profesor', 'Estudiante', 'Acudiente')),
+    UNIQUE (institucion_id, documento)
 );
-GO
 
--- 3. CURSOS
-CREATE TABLE CURSOS (
-    id               UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    institucion_id   UNIQUEIDENTIFIER NOT NULL,
-    nombre           NVARCHAR(50)     NOT NULL,   -- ej. '10°B'
-    periodo_lectivo  INT              NOT NULL,   -- año escolar, ej. 2026
-    CONSTRAINT PK_CURSOS PRIMARY KEY (id),
-    CONSTRAINT FK_CURSOS_institucion
-        FOREIGN KEY (institucion_id) REFERENCES INSTITUCIONES(id),
-    CONSTRAINT UQ_CURSOS_nombre_periodo
-        UNIQUE (institucion_id, nombre, periodo_lectivo)
+CREATE TABLE IF NOT EXISTS cursos (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    institucion_id UUID NOT NULL REFERENCES instituciones(id),
+    nombre VARCHAR(50) NOT NULL,
+    periodo_lectivo INTEGER NOT NULL,
+    UNIQUE (institucion_id, nombre, periodo_lectivo)
 );
-GO
 
--- 4. ASIGNATURAS
-CREATE TABLE ASIGNATURAS (
-    id           UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    curso_id     UNIQUEIDENTIFIER NOT NULL,
-    profesor_id  UNIQUEIDENTIFIER NOT NULL,
-    nombre       NVARCHAR(100)    NOT NULL,
-    CONSTRAINT PK_ASIGNATURAS PRIMARY KEY (id),
-    CONSTRAINT FK_ASIGNATURAS_curso
-        FOREIGN KEY (curso_id) REFERENCES CURSOS(id),
-    CONSTRAINT FK_ASIGNATURAS_profesor
-        FOREIGN KEY (profesor_id) REFERENCES USUARIOS(id)
+CREATE TABLE IF NOT EXISTS asignaturas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    curso_id UUID NOT NULL REFERENCES cursos(id),
+    profesor_id UUID NOT NULL REFERENCES usuarios(id),
+    nombre VARCHAR(100) NOT NULL
 );
-GO
 
--- 5. MATRICULAS
-CREATE TABLE MATRICULAS (
-    id             UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    estudiante_id  UNIQUEIDENTIFIER NOT NULL,
-    curso_id       UNIQUEIDENTIFIER NOT NULL,
-    acudiente_id   UNIQUEIDENTIFIER NULL,
-    CONSTRAINT PK_MATRICULAS PRIMARY KEY (id),
-    CONSTRAINT FK_MATRICULAS_estudiante
-        FOREIGN KEY (estudiante_id) REFERENCES USUARIOS(id),
-    CONSTRAINT FK_MATRICULAS_curso
-        FOREIGN KEY (curso_id) REFERENCES CURSOS(id),
-    CONSTRAINT FK_MATRICULAS_acudiente
-        FOREIGN KEY (acudiente_id) REFERENCES USUARIOS(id),
-    CONSTRAINT UQ_MATRICULAS_estudiante_curso UNIQUE (estudiante_id, curso_id)
+CREATE TABLE IF NOT EXISTS matriculas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    estudiante_id UUID NOT NULL REFERENCES usuarios(id),
+    curso_id UUID NOT NULL REFERENCES cursos(id),
+    acudiente_id UUID REFERENCES usuarios(id),
+    UNIQUE (estudiante_id, curso_id)
 );
-GO
 
--- 6. CALIFICACIONES
-CREATE TABLE CALIFICACIONES (
-    id             UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    matricula_id   UNIQUEIDENTIFIER NOT NULL,
-    asignatura_id  UNIQUEIDENTIFIER NOT NULL,
-    periodo        TINYINT          NOT NULL,
-    nota           DECIMAL(4,2)     NOT NULL,
-    porcentaje     DECIMAL(5,2)     NOT NULL,   -- peso en la nota final
-    CONSTRAINT PK_CALIFICACIONES PRIMARY KEY (id),
-    CONSTRAINT FK_CALIFICACIONES_matricula
-        FOREIGN KEY (matricula_id) REFERENCES MATRICULAS(id),
-    CONSTRAINT FK_CALIFICACIONES_asignatura
-        FOREIGN KEY (asignatura_id) REFERENCES ASIGNATURAS(id),
-    CONSTRAINT CK_CALIFICACIONES_periodo CHECK (periodo BETWEEN 1 AND 4),
-    CONSTRAINT CK_CALIFICACIONES_nota CHECK (nota BETWEEN 0 AND 5),
-    CONSTRAINT CK_CALIFICACIONES_porcentaje CHECK (porcentaje BETWEEN 0 AND 100)
+CREATE TABLE IF NOT EXISTS calificaciones (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    matricula_id UUID NOT NULL REFERENCES matriculas(id),
+    asignatura_id UUID NOT NULL REFERENCES asignaturas(id),
+    periodo SMALLINT NOT NULL CHECK (periodo BETWEEN 1 AND 4),
+    nota NUMERIC(4, 2) NOT NULL CHECK (nota BETWEEN 0 AND 5),
+    porcentaje NUMERIC(5, 2) NOT NULL CHECK (porcentaje BETWEEN 0 AND 100)
 );
-GO
 
--- 7. ASISTENCIA
-CREATE TABLE ASISTENCIA (
-    id             UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    matricula_id   UNIQUEIDENTIFIER NOT NULL,
-    asignatura_id  UNIQUEIDENTIFIER NOT NULL,
-    fecha          DATE             NOT NULL,
-    estado         NVARCHAR(10)     NOT NULL,
-    CONSTRAINT PK_ASISTENCIA PRIMARY KEY (id),
-    CONSTRAINT FK_ASISTENCIA_matricula
-        FOREIGN KEY (matricula_id) REFERENCES MATRICULAS(id),
-    CONSTRAINT FK_ASISTENCIA_asignatura
-        FOREIGN KEY (asignatura_id) REFERENCES ASIGNATURAS(id),
-    CONSTRAINT CK_ASISTENCIA_estado
+CREATE TABLE IF NOT EXISTS asistencia (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    matricula_id UUID NOT NULL REFERENCES matriculas(id),
+    asignatura_id UUID NOT NULL REFERENCES asignaturas(id),
+    fecha DATE NOT NULL,
+    estado VARCHAR(10) NOT NULL
         CHECK (estado IN ('Presente', 'Ausente', 'Excusado', 'Retardo')),
-    CONSTRAINT UQ_ASISTENCIA_dia UNIQUE (matricula_id, asignatura_id, fecha)
+    UNIQUE (matricula_id, asignatura_id, fecha)
 );
-GO
+
+CREATE TABLE IF NOT EXISTS zetta_sessions (
+    token_hash CHAR(64) PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_usuarios_institucion_rol ON usuarios (institucion_id, rol);
+CREATE INDEX IF NOT EXISTS idx_matriculas_estudiante ON matriculas (estudiante_id);
+CREATE INDEX IF NOT EXISTS idx_matriculas_acudiente ON matriculas (acudiente_id);
+CREATE INDEX IF NOT EXISTS idx_asignaturas_profesor ON asignaturas (profesor_id);
+CREATE INDEX IF NOT EXISTS idx_calificaciones_matricula_periodo ON calificaciones (matricula_id, periodo);
+CREATE INDEX IF NOT EXISTS idx_asistencia_fecha ON asistencia (fecha);
+CREATE INDEX IF NOT EXISTS idx_zetta_sessions_expires_at ON zetta_sessions (expires_at);

@@ -1,0 +1,195 @@
+.admin-page {
+  min-height: 100vh;
+}
+
+.admin-topbar,
+.admin-topbar-actions,
+.admin-heading,
+.admin-toolbar,
+.dialog-heading,
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-topbar {
+  padding: 1rem clamp(1rem, 4vw, 3rem);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.admin-topbar-actions {
+  color: #cbd5e1;
+}
+
+#connectionState {
+  color: #86efac;
+  font-size: 0.85rem;
+}
+
+.admin-shell {
+  display: grid;
+  width: min(1500px, calc(100% - 2rem));
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 1.5rem;
+  margin: 2rem auto;
+}
+
+.admin-sidebar,
+.admin-content {
+  padding: 1.25rem;
+}
+
+.admin-sidebar {
+  align-self: start;
+  border-radius: 1rem;
+}
+
+.entity-navigation {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.entity-nav-button {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: #cbd5e1;
+  text-align: left;
+}
+
+.entity-nav-button:hover,
+.entity-nav-button[aria-current="page"] {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.1);
+  color: #7dd3fc;
+}
+
+.admin-heading {
+  margin-bottom: 1rem;
+}
+
+.admin-toolbar {
+  justify-content: flex-start;
+  padding: 0.75rem;
+  border-radius: 0.8rem;
+}
+
+.search-box {
+  display: flex;
+  flex: 1;
+  gap: 0.6rem;
+}
+
+.search-box input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.record-count {
+  color: #aab4c4;
+  font-size: 0.85rem;
+}
+
+.admin-feedback {
+  min-height: 1.4rem;
+  margin: 0.6rem 0;
+  color: #fca5a5;
+}
+
+.admin-feedback.is-success {
+  color: #86efac;
+}
+
+.table-card {
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.admin-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: #e2e8f0;
+  --bs-table-border-color: rgba(255, 255, 255, 0.1);
+  min-width: 700px;
+}
+
+.admin-table th {
+  color: #7dd3fc;
+}
+
+.empty-state {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.empty-mark {
+  color: #38bdf8;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.record-dialog {
+  width: min(640px, calc(100% - 2rem));
+  max-height: 85vh;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1rem;
+  background: #111827;
+  color: #e2e8f0;
+}
+
+.record-dialog::backdrop {
+  background: rgba(2, 6, 23, 0.76);
+  backdrop-filter: blur(4px);
+}
+
+.record-dialog-form {
+  padding: 1.25rem;
+}
+
+.dialog-fields {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.dialog-close {
+  border: 0;
+  background: none;
+  color: #e2e8f0;
+  font-size: 1.8rem;
+}
+
+.dialog-actions {
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+@media (max-width: 800px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    padding: 1rem;
+  }
+
+  .entity-navigation {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .admin-heading,
+  .admin-topbar,
+  .admin-topbar-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

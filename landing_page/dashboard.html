@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Panel académico de ZETTA personalizado por perfil.">
+    <title>Mi espacio · ZETTA</title>
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="js/demo-accounts.js" defer></script>
+    <script src="js/dashboard.js" defer></script>
+  </head>
+  <body class="role-dashboard">
+    <header class="dashboard-topbar">
+      <a class="navbar-brand fw-bold grad" href="/index.html">ZETTA</a>
+      <div class="dashboard-user">
+        <span data-session-name></span>
+        <span class="role-badge" id="roleBadge"></span>
+        <button class="btn btn-ghost btn-sm" id="logoutButton" type="button">Salir</button>
+      </div>
+    </header>
+    <main class="dashboard-shell">
+      <section class="dashboard-heading">
+        <p class="eyebrow mb-2">PORTAL ACADÉMICO</p>
+        <h1 class="display-6 fw-bold mb-2" id="roleTitle">Mi espacio</h1>
+        <p class="text-muted mb-0" id="roleDescription"></p>
+      </section>
+      <section class="dashboard-grid" id="roleNavigation" aria-label="Módulos del perfil"></section>
+      <p class="dashboard-note">
+        Las áreas marcadas como próximas aún no están implementadas. El acceso a los datos se vuelve a validar en la API para cada solicitud.
+      </p>
+    </main>
+  </body>
+</html>

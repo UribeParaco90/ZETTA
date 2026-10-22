@@ -1,0 +1,92 @@
+.role-dashboard {
+  min-height: 100vh;
+}
+
+.dashboard-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 4vw, 3rem);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dashboard-user {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #cbd5e1;
+}
+
+.role-badge {
+  padding: 0.25rem 0.7rem;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 999px;
+  color: #7dd3fc;
+  font-size: 0.8rem;
+}
+
+.dashboard-shell {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4rem) 0;
+}
+
+.dashboard-heading {
+  margin-bottom: 2rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 1rem;
+}
+
+.dashboard-card {
+  display: flex;
+  min-height: 145px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.045);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+a.dashboard-card:hover,
+a.dashboard-card:focus-visible {
+  border-color: #38bdf8;
+  color: inherit;
+  transform: translateY(-2px);
+}
+
+.dashboard-card h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.dashboard-card span {
+  color: #38bdf8;
+  font-size: 0.85rem;
+}
+
+.dashboard-card.is-upcoming {
+  opacity: 0.65;
+}
+
+.dashboard-card.is-upcoming span {
+  color: #aab4c4;
+}
+
+.dashboard-card.is-current span {
+  color: #86efac;
+}
+
+.dashboard-note {
+  margin-top: 1.5rem;
+  color: #aab4c4;
+  font-size: 0.875rem;
+}
