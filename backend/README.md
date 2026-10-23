@@ -17,6 +17,22 @@
 4. Desde la raíz del proyecto ejecuta `npm --prefix backend start`.
 5. Abre `http://localhost:3000`.
 
+## Despliegue en Render
+
+1. Sube el repositorio a GitHub sin incluir `backend/.env`. En Render, crea un
+   Blueprint desde el repositorio; `render.yaml` configura el servicio web,
+   instala las dependencias del backend y usa `/api/health` para comprobarlo.
+2. Configura `DATABASE_URL` en el servicio con la URL de conexión de Neon.
+   Render no crea ni migra esta base de datos automáticamente.
+3. En una base nueva, ejecuta `backend/schema.postgres.sql` en Neon antes del
+   primer despliegue. Para una base existente, respáldala y ejecuta una sola vez
+   `backend/migrations/001_funcionalidad_roles.sql` en lugar del esquema inicial.
+4. `PUBLIC_BASE_URL` es opcional: por defecto, los enlaces de activación usan la
+   URL pública asignada por Render. Para enviar correos, configura también
+   `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` y
+   `SMTP_FROM` como variables del servicio. Sin SMTP, los correos quedan en la
+   cola de salida y las activaciones se pueden copiar desde el panel Admin.
+
 El servidor consulta tablas PostgreSQL en minúsculas con los nombres definidos en
 `schema.postgres.sql`. Ese archivo sirve para una base nueva; no lo ejecutes sobre
 una base existente sin revisar antes sus tablas y respaldar los datos.

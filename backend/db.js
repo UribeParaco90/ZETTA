@@ -8,7 +8,7 @@ let pool;
 
 const getPool = () => {
   if (!process.env.DATABASE_URL) {
-    throw new Error("Configura DATABASE_URL en backend/.env.");
+    throw new Error("Configura DATABASE_URL como variable de entorno o en backend/.env.");
   }
   if (!pool) {
     pool = new Pool({

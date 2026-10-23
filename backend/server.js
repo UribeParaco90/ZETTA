@@ -22,7 +22,10 @@ const { sendPendingEmail, smtpOptions } = require("./mailer");
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
-const host = process.env.HOST || "127.0.0.1";
+const host = process.env.NODE_ENV === "production"
+  ? "0.0.0.0"
+  : process.env.HOST || "127.0.0.1";
+const publicBaseUrl = process.env.PUBLIC_BASE_URL || process.env.RENDER_EXTERNAL_URL || `http://${host}:${port}`;
 const root = path.join(__dirname, "..");
 const landingPage = path.join(root, "landing_page");
 const sessionCookie = "zetta_session";
@@ -1161,7 +1164,7 @@ app.post("/api/usuarios", async (request, response, next) => {
     const activationToken = await issueActivation(client, newUserId);
     const activationUrl = new URL(
       `/activar.html?token=${encodeURIComponent(activationToken)}`,
-      process.env.PUBLIC_BASE_URL || `http://${host}:${port}`
+      publicBaseUrl
     ).toString();
     await enqueueEmail(client, {
       recipient: personalEmail ? personalEmail.trim().toLowerCase() : email,
@@ -1224,7 +1227,7 @@ app.post("/api/usuarios/:id/activacion", async (request, response, next) => {
     const token = await issueActivation(getPool(), account.id);
     const activationUrl = new URL(
       `/activar.html?token=${encodeURIComponent(token)}`,
-      process.env.PUBLIC_BASE_URL || `http://${host}:${port}`
+      publicBaseUrl
     ).toString();
     const recipient = account.email_personal || account.email;
     await enqueueEmail(getPool(), {
