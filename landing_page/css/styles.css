@@ -16,9 +16,16 @@ html {
 }
 
 body {
+  min-width: 320px;
   color: var(--text-primary);
   font-family: "Segoe UI", system-ui, sans-serif;
   background: linear-gradient(160deg, var(--bg-primary), var(--bg-secondary)) fixed;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
 }
 
 body::before {
@@ -309,6 +316,10 @@ footer {
   .island .navbar-collapse {
     padding-top: 8px;
   }
+
+  .island .navbar-collapse .d-flex {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 575.98px) {
@@ -324,6 +335,15 @@ footer {
   .certification-callout {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .hero .row {
+    --bs-gutter-x: 1.5rem;
+  }
+
+  .root-box {
+    max-width: 100%;
+    padding-inline: 18px;
   }
 }
 

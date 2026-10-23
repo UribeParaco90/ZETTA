@@ -41,6 +41,21 @@
             <span class="visually-hidden">Buscar en registros</span>
             <input id="searchRecords" type="search" placeholder="Buscar…" autocomplete="off">
           </label>
+          <label class="record-filter" id="institutionFilterGroup" hidden>
+            <span>Institución</span>
+            <select id="institutionFilter" aria-label="Filtrar por institución">
+              <option value="">Todas las instituciones</option>
+            </select>
+          </label>
+          <label class="record-filter" id="roleFilterGroup" hidden>
+            <span>Perfil</span>
+            <select id="roleFilter" aria-label="Filtrar por perfil">
+              <option value="">Todos los perfiles</option>
+              <option value="Admin">Rectores</option>
+              <option value="Profesor">Profesores</option>
+              <option value="Estudiante">Estudiantes</option>
+            </select>
+          </label>
           <button class="btn btn-ghost btn-sm" id="refreshRecords" type="button">Actualizar</button>
           <span class="record-count" id="recordCount" aria-live="polite"></span>
         </div>

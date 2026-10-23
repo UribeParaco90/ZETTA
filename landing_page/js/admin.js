@@ -89,10 +89,26 @@
 
   const renderRecords = () => {
     const fields = state.entity.fields.filter((field) => state.entity.display.includes(field.key));
-    const search = element("#searchRecords").value.trim().toLocaleLowerCase();
-    const records = state.records.filter((record) => fields.some((field) => (
-      displayValue(field, record[field.key]).toLocaleLowerCase().includes(search)
-    )));
+    const normalizeSearch = (value) => String(value ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase();
+    const search = normalizeSearch(element("#searchRecords").value.trim());
+    const institutionId = element("#institutionFilter").value;
+    const role = element("#roleFilter").value;
+    const institutionNames = new Map(
+      (state.references.get("instituciones") || []).map((institution) => [institution.id, institution.nombre])
+    );
+    const isSuperAdminUserList = state.user.role === "SuperAdmin" && state.entity.key === "usuarios";
+    const records = state.records.filter((record) => {
+      if (isSuperAdminUserList && institutionId && record.institucion_id !== institutionId) return false;
+      if (isSuperAdminUserList && role && record.rol !== role) return false;
+      const searchableValues = fields.map((field) => displayValue(field, record[field.key]));
+      if (isSuperAdminUserList) {
+        searchableValues.push(institutionNames.get(record.institucion_id) || "");
+      }
+      return searchableValues.some((value) => normalizeSearch(value).includes(search));
+    });
     tableHead.replaceChildren();
     tableBody.replaceChildren();
     const header = document.createElement("tr");
@@ -156,14 +172,35 @@
       }
       tableBody.append(row);
     });
-    element("#recordCount").textContent = `${records.length} registros`;
+    element("#recordCount").textContent = isSuperAdminUserList
+      ? `${records.length} de ${state.records.length} usuarios`
+      : `${records.length} registros`;
     element("#emptyState").hidden = records.length > 0;
   };
 
   const loadRecords = async () => {
-    const result = await api(`/api/${state.entity.key}?limit=200`);
+    const limit = state.user.role === "SuperAdmin" && state.entity.key === "usuarios" ? 2000 : 200;
+    const result = await api(`/api/${state.entity.key}?limit=${limit}`);
     state.records = result.records;
     renderRecords();
+  };
+
+  const renderUserFilters = () => {
+    const visible = state.user.role === "SuperAdmin" && state.entity.key === "usuarios";
+    element("#institutionFilterGroup").hidden = !visible;
+    element("#roleFilterGroup").hidden = !visible;
+    if (!visible) return;
+
+    const institutionFilter = element("#institutionFilter");
+    const selectedInstitution = institutionFilter.value;
+    institutionFilter.replaceChildren(new Option("Todas las instituciones", ""));
+    (state.references.get("instituciones") || [])
+      .slice()
+      .sort((left, right) => left.nombre.localeCompare(right.nombre, "es"))
+      .forEach((institution) => {
+        institutionFilter.add(new Option(institution.nombre, institution.id));
+      });
+    institutionFilter.value = selectedInstitution;
   };
 
   const selectEntity = async (entity) => {
@@ -177,6 +214,7 @@
     renderNavigation();
     try {
       await loadReferences();
+      renderUserFilters();
       await loadRecords();
       report("");
     } catch (error) {
@@ -300,6 +338,8 @@
   createButton.addEventListener("click", () => openDialog());
   element("#refreshRecords").addEventListener("click", () => loadRecords().catch((error) => report(error.message)));
   element("#searchRecords").addEventListener("input", renderRecords);
+  element("#institutionFilter").addEventListener("change", renderRecords);
+  element("#roleFilter").addEventListener("change", renderRecords);
 
   const initialize = async () => {
     const user = await api("/api/auth/me");

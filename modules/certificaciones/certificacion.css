@@ -397,8 +397,26 @@
 }
 
 @media (max-width: 575.98px) {
+  .cert-head {
+    padding-top: 104px;
+    padding-bottom: 18px;
+  }
+
   .cert-head .lead {
     font-size: 0.98rem;
+  }
+
+  .demo-badge {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .cert-controls {
+    padding: 16px;
+  }
+
+  .section-heading {
+    align-items: flex-start;
   }
 
   .result-toolbar {
@@ -413,6 +431,10 @@
   .certificate-sheet {
     padding: 22px 16px;
     border-radius: 12px;
+  }
+
+  .certificate-watermark {
+    font-size: clamp(1.4rem, 7vw, 2.5rem);
   }
 
   .certificate-header {

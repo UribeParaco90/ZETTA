@@ -383,7 +383,27 @@
   }
 
   .login-topbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
     min-height: 66px;
+  }
+
+  .login-layout,
+  .register-layout {
+    width: calc(100% - 24px);
+  }
+
+  .login-card {
+    padding: 22px 18px;
+    border-radius: 14px;
+  }
+
+  .login-heading {
+    margin-bottom: 22px;
+  }
+
+  .login-heading .h2 {
+    font-size: 1.5rem;
   }
 
   .login-footer {

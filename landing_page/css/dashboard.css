@@ -14,6 +14,7 @@
 .dashboard-user {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.8rem;
   color: #cbd5e1;
 }
@@ -28,6 +29,7 @@
 
 .dashboard-shell {
   width: min(1100px, calc(100% - 2rem));
+  min-width: 0;
   margin: 0 auto;
   padding: clamp(2rem, 6vw, 4rem) 0;
 }
@@ -89,4 +91,34 @@ a.dashboard-card:focus-visible {
   margin-top: 1.5rem;
   color: #aab4c4;
   font-size: 0.875rem;
+}
+
+@media (max-width: 575.98px) {
+  .dashboard-topbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 0.85rem 1rem;
+  }
+
+  .dashboard-user {
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .dashboard-shell {
+    width: min(100% - 1.25rem, 1100px);
+    padding: 1.75rem 0;
+  }
+
+  .dashboard-heading {
+    margin-bottom: 1.25rem;
+  }
+
+  .dashboard-heading .display-6 {
+    font-size: clamp(1.75rem, 8vw, 2.4rem);
+  }
+
+  .dashboard-card {
+    min-height: 120px;
+  }
 }

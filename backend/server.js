@@ -1960,7 +1960,8 @@ app.get("/api/:entity", async (request, response, next) => {
   if (!allowMethods(entity, request.user.role, "GET")) {
     return sendError(response, 403, "Tu perfil no tiene permiso para consultar esta sección.");
   }
-  const limit = Math.min(Math.max(Number(request.query.limit) || 100, 1), 200);
+  const maxLimit = request.user.role === "SuperAdmin" && request.params.entity === "usuarios" ? 2000 : 200;
+  const limit = Math.min(Math.max(Number(request.query.limit) || 100, 1), maxLimit);
   const scope = scopeFor(request.params.entity, request.user);
   const columns = ["id", ...entity.fields.filter((item) => !item.writeOnly).map((item) => item.key)];
   try {
