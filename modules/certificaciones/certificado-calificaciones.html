@@ -9,15 +9,15 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2338bdf8'/%3E%3Ctext x='50' y='70' font-size='62' font-weight='700' text-anchor='middle' fill='%230f172a'%3EZ%3C/text%3E%3C/svg%3E"
     >
-    <link rel="stylesheet" href="../../landing_page/vendor/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="../../landing_page/css/styles.css">
+    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="certificacion.css">
-    <script src="../../landing_page/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
     <script src="certificado-calificaciones.js" defer></script>
   </head>
   <body class="cert-page">
     <nav class="navbar navbar-expand-md island" aria-label="Navegación de módulos">
-      <a class="navbar-brand fw-bold grad" href="../../landing_page/index.html">ZETTA</a>
+      <a class="navbar-brand fw-bold grad" href="/index.html">ZETTA</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -31,7 +31,7 @@
       </button>
       <div class="collapse navbar-collapse" id="menuCertificaciones">
         <ul class="navbar-nav mx-auto">
-          <li class="nav-item"><a class="nav-link" href="../../landing_page/index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="/index.html">Inicio</a></li>
           <li class="nav-item"><a class="nav-link" href="../asistencias/asistencia.html">Asistencia</a></li>
           <li class="nav-item"><a class="nav-link active" href="certificado-calificaciones.html" aria-current="page">Certificaciones</a></li>
         </ul>
@@ -135,6 +135,7 @@
                   <tr>
                     <th scope="col">Área / asignatura</th>
                     <th scope="col">Calificación final</th>
+                    <th scope="col">Nota necesaria en periodos pendientes</th>
                     <th scope="col">Escala</th>
                   </tr>
                 </thead>
@@ -143,6 +144,7 @@
                   <tr>
                     <th scope="row">Promedio general (promedio simple de áreas)</th>
                     <td id="overallAverage"></td>
+                    <td>—</td>
                     <td>0,00 – 5,00</td>
                   </tr>
                 </tfoot>

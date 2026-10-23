@@ -49,17 +49,22 @@
   };
 
   const displayValue = (field, value) => {
+    if (field.key === "primer_ingreso") return value ? "Pendiente" : "Activada";
     if (!value) return "—";
     if (field.type === "reference") {
       const record = (state.references.get(field.reference) || []).find((item) => item.id === value);
       return record ? referenceLabel(field.reference, record) : value;
     }
+    if (typeof value === "object") return JSON.stringify(value);
     return String(value);
   };
 
   const loadReferences = async () => {
-    const keys = new Set(state.entity.fields.filter((field) => field.type === "reference").map((field) => field.reference));
+    const keys = new Set(state.entity.fields
+      .filter((field) => field.type === "reference" && !field.readOnly)
+      .map((field) => field.reference));
     for (const key of keys) {
+      if (key === "instituciones" && !["Admin", "SuperAdmin"].includes(state.user.role)) continue;
       if (key === "instituciones" && state.user.role === "Admin") {
         state.references.set(key, [{ id: state.user.institutionId, nombre: "Mi institución" }]);
       } else {
@@ -97,7 +102,7 @@
       cell.textContent = field.label;
       header.append(cell);
     });
-    if (state.entity.canWrite) {
+    if (state.entity.canWrite || state.entity.canManageActivation) {
       const actionHeader = document.createElement("th");
       actionHeader.scope = "col";
       actionHeader.textContent = "Acciones";
@@ -111,20 +116,42 @@
         cell.textContent = displayValue(field, record[field.key]);
         row.append(cell);
       });
-      if (state.entity.canWrite) {
+      if (state.entity.canWrite || state.entity.canManageActivation) {
         const actions = document.createElement("td");
         actions.className = "text-end";
-        const edit = document.createElement("button");
-        edit.className = "btn btn-ghost btn-sm me-1";
-        edit.type = "button";
-        edit.textContent = "Editar";
-        edit.addEventListener("click", () => openDialog(record));
-        const remove = document.createElement("button");
-        remove.className = "btn btn-outline-danger btn-sm";
-        remove.type = "button";
-        remove.textContent = "Eliminar";
-        remove.addEventListener("click", () => deleteRecord(record));
-        actions.append(edit, remove);
+        const canManageRecord = state.entity.canWrite
+          && (state.entity.key !== "usuarios" || ["Profesor", "Estudiante"].includes(record.rol));
+        if (canManageRecord) {
+          const edit = document.createElement("button");
+          edit.className = "btn btn-ghost btn-sm me-1";
+          edit.type = "button";
+          edit.textContent = "Editar";
+          edit.addEventListener("click", () => openDialog(record));
+          const remove = document.createElement("button");
+          remove.className = "btn btn-outline-danger btn-sm";
+          remove.type = "button";
+          remove.textContent = "Eliminar";
+          remove.addEventListener("click", () => deleteRecord(record));
+          actions.append(edit, remove);
+        }
+        const canReissueActivation = state.entity.canManageActivation
+          && record.primer_ingreso
+          && (state.user.role === "SuperAdmin" ? record.rol === "Admin" : ["Profesor", "Estudiante"].includes(record.rol));
+        if (canReissueActivation) {
+          const activate = document.createElement("button");
+          activate.className = "btn btn-ghost btn-sm ms-1";
+          activate.type = "button";
+          activate.textContent = "Reemitir enlace";
+          activate.addEventListener("click", async () => {
+            try {
+              const result = await api(`/api/usuarios/${record.id}/activacion`, { method: "POST" });
+              report(`Enlace de activación (válido 24 horas): ${result.activationUrl}`, true);
+            } catch (error) {
+              report(error.message);
+            }
+          });
+          actions.append(activate);
+        }
         row.append(actions);
       }
       tableBody.append(row);
@@ -145,8 +172,8 @@
     description.textContent = entity.canWrite
       ? "Consulta y modifica solo registros permitidos para tu perfil e institución."
       : "Consulta de solo lectura dentro del alcance de tu perfil.";
-    createButton.hidden = !entity.canWrite;
-    createButton.disabled = !entity.canWrite;
+    createButton.hidden = !entity.canCreate;
+    createButton.disabled = !entity.canCreate;
     renderNavigation();
     try {
       await loadReferences();
@@ -193,6 +220,13 @@
       if (field.step !== undefined) control.step = field.step;
       if (field.type === "password" && record) control.placeholder = "Deja vacío para conservar la contraseña";
     }
+    if (field.readOnly) {
+      control.disabled = true;
+      if (control instanceof HTMLInputElement) {
+        control.readOnly = true;
+        control.placeholder = "Se asigna automáticamente";
+      }
+    }
     if (record && record[field.key] !== undefined && field.type !== "password") {
       control.value = record[field.key] ?? "";
     }
@@ -231,13 +265,21 @@
     const body = Object.fromEntries(new FormData(form).entries());
     const url = state.recordId ? `/api/${state.entity.key}/${state.recordId}` : `/api/${state.entity.key}`;
     try {
-      await api(url, {
+      const saved = await api(url, {
         method: state.recordId ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       });
       dialog.close();
-      report("Registro guardado correctamente.", true);
+      if (state.entity.key === "usuarios" && !state.recordId) {
+        report(
+          `Usuario creado: ${saved.email}. Enlace de activación (válido 24 horas): ${saved.activationUrl}`
+          + (saved.codigoVinculacion ? ` · Código para acudiente: ${saved.codigoVinculacion}` : ""),
+          true
+        );
+      } else {
+        report("Registro guardado correctamente.", true);
+      }
       await loadRecords();
     } catch (error) {
       dialogFeedback.textContent = error.message;
@@ -261,19 +303,209 @@
 
   const initialize = async () => {
     const user = await api("/api/auth/me");
-    if (!["Admin", "SuperAdmin"].includes(user.role)) {
-      window.location.replace("/dashboard.html");
-      return;
-    }
     state.user = user;
     element("#adminUser").textContent = user.name;
     const health = await api("/api/health");
     element("#connectionState").textContent = `Neon conectado · ${health.database}`;
+    const view = new URLSearchParams(window.location.search).get("view");
+    if (view === "metrics" || view === "settings") {
+      if (view === "metrics" && user.role !== "SuperAdmin") {
+        window.location.replace("/dashboard.html");
+        return;
+      }
+      if (view === "settings" && user.role !== "Admin") {
+        window.location.replace("/dashboard.html");
+        return;
+      }
+      await renderSpecialView(view);
+      return;
+    }
     state.entities = await api("/api/entities");
     if (!state.entities.length) throw new Error("Este perfil no tiene entidades disponibles.");
     const requested = new URLSearchParams(window.location.search).get("entity");
     const entity = state.entities.find((item) => item.key === requested) || state.entities[0];
     await selectEntity(entity);
+  };
+
+  const renderSpecialView = async (view) => {
+    navigation.replaceChildren();
+    createButton.hidden = true;
+    element(".admin-toolbar").hidden = true;
+    element(".table-card").hidden = true;
+    element("#entityTitle").textContent = view === "metrics" ? "Métricas SaaS y planes" : "Ajustes institucionales";
+    element("#entityDescription").textContent = view === "metrics"
+      ? "Uso de la plataforma y distribución actual de planes; no se realizan cobros."
+      : "Configura la evaluación, los periodos y su cierre.";
+    const panel = document.createElement("section");
+    panel.className = "glass p-4";
+    panel.setAttribute("aria-live", "polite");
+    element(".admin-content").append(panel);
+    if (view === "metrics") {
+      const result = await api("/api/saas/metrics");
+      const totals = result.totals;
+      const summary = document.createElement("p");
+      summary.className = "h5";
+      summary.textContent = `${totals.instituciones} instituciones · ${totals.usuarios} usuarios · ${totals.cursos} cursos`;
+      panel.append(summary);
+      const table = document.createElement("table");
+      table.className = "table align-middle";
+      const head = document.createElement("tr");
+      ["Institución", "Plan", "Usuarios", "Cursos"].forEach((label) => {
+        const cell = document.createElement("th");
+        cell.textContent = label;
+        head.append(cell);
+      });
+      const thead = document.createElement("thead");
+      thead.append(head);
+      const tbody = document.createElement("tbody");
+      result.institutions.forEach((institution) => {
+        const row = document.createElement("tr");
+        [institution.nombre, institution.plan_suscripcion, institution.usuarios, institution.cursos].forEach((value) => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.append(cell);
+        });
+        tbody.append(row);
+      });
+      table.append(thead, tbody);
+      panel.append(table);
+      return;
+    }
+
+    const result = await api("/api/configuracion-institucional");
+    const form = document.createElement("form");
+    form.className = "login-form";
+    const fields = [
+      ["notaMinimaAprobacion", "Nota mínima aprobatoria", result.settings.nota_minima_aprobacion, 0, 5, 0.01],
+      ["escalaMin", "Mínimo de la escala", result.settings.escala_min, 0, 5, 0.01],
+      ["escalaMax", "Máximo de la escala", result.settings.escala_max, 0, 5, 0.01],
+      ["numPeriodos", "Número de periodos", result.settings.num_periodos, 1, 12, 1]
+    ];
+    const controls = {};
+    fields.forEach(([name, labelText, value, min, max, step]) => {
+      const label = document.createElement("label");
+      label.className = "form-label";
+      label.textContent = labelText;
+      const input = document.createElement("input");
+      input.className = "form-control field";
+      input.name = name;
+      input.type = "number";
+      input.min = min;
+      input.max = max;
+      input.step = step;
+      input.value = value;
+      input.required = true;
+      controls[name] = input;
+      form.append(label, input);
+    });
+    const yearLabel = document.createElement("label");
+    yearLabel.className = "form-label";
+    yearLabel.textContent = "Año lectivo";
+    const yearInput = document.createElement("input");
+    yearInput.className = "form-control field";
+    yearInput.name = "periodoLectivo";
+    yearInput.type = "number";
+    yearInput.min = 2000;
+    yearInput.max = 2200;
+    yearInput.value = result.periodoLectivo;
+    yearInput.required = true;
+    form.append(yearLabel, yearInput);
+    const weightsTitle = document.createElement("h3");
+    weightsTitle.className = "h5 mt-3";
+    weightsTitle.textContent = "Ponderación por periodo (debe sumar 100 %)";
+    form.append(weightsTitle);
+    let weightsContainer = document.createElement("div");
+    weightsContainer.className = "row g-3";
+    form.append(weightsContainer);
+    const renderWeights = () => {
+      weightsContainer.replaceChildren();
+      const count = Number(controls.numPeriodos.value);
+      for (let index = 0; index < count; index += 1) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "col-sm-6";
+        const label = document.createElement("label");
+        label.className = "form-label";
+        label.textContent = `Periodo ${index + 1} (%)`;
+        const input = document.createElement("input");
+        input.className = "form-control field period-weight";
+        input.type = "number";
+        input.min = 0;
+        input.max = 100;
+        input.step = 0.01;
+        input.value = result.periodos[index]?.peso_porcentaje ?? (100 / count).toFixed(2);
+        input.required = true;
+        wrapper.append(label, input);
+        weightsContainer.append(wrapper);
+      }
+    };
+    controls.numPeriodos.addEventListener("change", renderWeights);
+    renderWeights();
+    const feedback = document.createElement("p");
+    feedback.className = "admin-feedback";
+    feedback.setAttribute("role", "status");
+    const save = document.createElement("button");
+    save.className = "btn btn-zetta";
+    save.type = "submit";
+    save.textContent = "Guardar configuración";
+    form.append(feedback, save);
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const pesosPeriodos = [...form.querySelectorAll(".period-weight")].map((input) => Number(input.value));
+      try {
+        await api("/api/configuracion-institucional", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            notaMinimaAprobacion: Number(controls.notaMinimaAprobacion.value),
+            escalaMin: Number(controls.escalaMin.value),
+            escalaMax: Number(controls.escalaMax.value),
+            numPeriodos: Number(controls.numPeriodos.value),
+            periodoLectivo: Number(yearInput.value),
+            pesosPeriodos
+          })
+        });
+        feedback.textContent = "Configuración guardada.";
+        feedback.classList.add("is-success");
+      } catch (error) {
+        feedback.textContent = error.message;
+        feedback.classList.remove("is-success");
+      }
+    });
+    panel.append(form);
+    if (result.periodos.length) {
+      const closure = document.createElement("div");
+      closure.className = "mt-4";
+      const heading = document.createElement("h3");
+      heading.className = "h5";
+      heading.textContent = "Cierre de periodos";
+      closure.append(heading);
+      result.periodos.forEach((period) => {
+        const row = document.createElement("div");
+        row.className = "d-flex align-items-center justify-content-between border-bottom py-2";
+        const label = document.createElement("span");
+        label.textContent = `Periodo ${period.numero} · ${period.peso_porcentaje}% · ${period.cerrado ? "Cerrado" : "Abierto"}`;
+        const action = document.createElement("button");
+        action.type = "button";
+        action.className = "btn btn-ghost btn-sm";
+        action.textContent = period.cerrado ? "Reabrir" : "Cerrar";
+        action.addEventListener("click", async () => {
+          try {
+            await api(`/api/periodos/${period.id}/cierre`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ accion: period.cerrado ? "reabrir" : "cerrar" })
+            });
+            window.location.reload();
+          } catch (error) {
+            feedback.textContent = error.message;
+          }
+        });
+        row.append(label, action);
+        closure.append(row);
+      });
+      panel.append(closure);
+    }
   };
 
   initialize().catch((error) => {

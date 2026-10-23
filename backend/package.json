@@ -7,12 +7,13 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check db.js && node --check entities.js && node --check security.js",
+    "check": "node --check server.js && node --check db.js && node --check entities.js && node --check security.js && node --check business-rules.js && node --check mailer.js",
     "test": "node --test"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "nodemailer": "^10.2.1"
   }
 }

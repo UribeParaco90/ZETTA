@@ -20,9 +20,13 @@
     maximumFractionDigits: 2
   }).format(value);
 
-  const renderCertificate = ({ student, grades }, period) => {
+  const renderCertificate = async ({ student, grades }, period) => {
+    const requirements = await Promise.all(grades.map((grade) => api(
+      `/api/academico/nota-requerida?matriculaId=${encodeURIComponent(grade.matricula_id)}&asignaturaId=${encodeURIComponent(grade.asignatura_id)}`
+    )));
     const gradeValues = grades.map((item) => Number(item.nota));
     const average = gradeValues.reduce((sum, grade) => sum + grade, 0) / gradeValues.length;
+    const scaleLabel = `${formatGrade(Number(student.escala_min))} – ${formatGrade(Number(student.escala_max))}`;
     document.querySelector("#institutionName").textContent = student.institucion;
     document.querySelector("#certificatePeriod").textContent =
       `Periodo ${period} · Año lectivo ${student.periodo_lectivo}`;
@@ -31,22 +35,30 @@
     document.querySelector("#certificateCourse").textContent = student.curso;
     document.querySelector("#certificateYear").textContent = String(student.periodo_lectivo);
     document.querySelector("#overallAverage").textContent = formatGrade(average);
+    document.querySelector("#overallAverage").nextElementSibling.nextElementSibling.textContent = scaleLabel;
     document.querySelector("#certificateFolio").textContent = `VISTA-${Date.now().toString(36).toUpperCase()}`;
     document.querySelector("#gradeMethod").textContent =
       "Promedio por asignatura ponderado por el porcentaje registrado en Neon.";
 
     const body = document.querySelector("#gradesBody");
     body.replaceChildren();
-    grades.forEach((grade) => {
+    grades.forEach((grade, index) => {
       const row = document.createElement("tr");
       const name = document.createElement("th");
       name.scope = "row";
       name.textContent = grade.asignatura;
       const value = document.createElement("td");
       value.textContent = formatGrade(Number(grade.nota));
+      const required = document.createElement("td");
+      const progress = requirements[index];
+      required.textContent = progress.mathematicallyLost
+        ? "No es matemáticamente posible"
+        : progress.remainingWeight === 0
+          ? progress.passed ? "Aprobado" : "No aprobado"
+          : formatGrade(progress.required);
       const scale = document.createElement("td");
-      scale.textContent = "0,00 – 5,00";
-      row.append(name, value, scale);
+      scale.textContent = scaleLabel;
+      row.append(name, value, required, scale);
       body.append(row);
     });
     result.hidden = false;
@@ -54,11 +66,17 @@
   };
 
   const load = async () => {
-    const [session, students] = await Promise.all([
+    const [session, students, configuration] = await Promise.all([
       api("/api/auth/me"),
-      api("/api/academico/estudiantes")
+      api("/api/academico/estudiantes"),
+      api("/api/configuracion-institucional")
     ]);
     userName.textContent = session.name;
+    const periodCount = Number(configuration.settings.num_periodos) || 4;
+    periodSelect.replaceChildren();
+    for (let number = 1; number <= periodCount; number += 1) {
+      periodSelect.add(new Option(`Periodo ${number}`, String(number)));
+    }
     students.forEach((student) => {
       const option = new Option(
         `${student.nombre} ${student.apellido}${student.curso ? ` · ${student.curso}` : ""}`,
@@ -80,7 +98,7 @@
     try {
       const period = periodSelect.value;
       const data = await api(`/api/academico/calificaciones/${encodeURIComponent(studentSelect.value)}?periodo=${encodeURIComponent(period)}`);
-      renderCertificate(data, period);
+      await renderCertificate(data, period);
       feedback.textContent = "";
     } catch (error) {
       feedback.textContent = error.message;

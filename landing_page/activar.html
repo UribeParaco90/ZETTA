@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Activa tu cuenta de ZETTA y crea una contraseña segura.">
+    <title>Activar cuenta · ZETTA</title>
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/login.css">
+    <script src="js/activate.js" defer></script>
+  </head>
+  <body class="login-page">
+    <header class="login-topbar">
+      <a class="navbar-brand fw-bold grad" href="/index.html" aria-label="ZETTA, ir al inicio">ZETTA</a>
+      <a class="back-link" href="/login.html">Iniciar sesión</a>
+    </header>
+    <main class="login-layout">
+      <section class="login-card glass" aria-labelledby="activate-title">
+        <div class="login-heading">
+          <span class="login-mark" aria-hidden="true">Z</span>
+          <p class="eyebrow mb-2">PORTAL ACADÉMICO</p>
+          <h1 id="activate-title" class="h2 fw-bold mb-2">Activa tu cuenta</h1>
+          <p class="text-muted mb-0">Crea una contraseña para completar tu primer ingreso.</p>
+        </div>
+        <form id="activateForm" class="login-form" novalidate>
+          <div>
+            <label class="form-label" for="password">Nueva contraseña</label>
+            <input class="form-control field" id="password" name="password" type="password"
+              minlength="8" maxlength="200" autocomplete="new-password" required>
+          </div>
+          <div>
+            <label class="form-label" for="confirmPassword">Confirmar contraseña</label>
+            <input class="form-control field" id="confirmPassword" name="confirmPassword" type="password"
+              minlength="8" maxlength="200" autocomplete="new-password" required>
+          </div>
+          <p class="form-feedback" id="activateFeedback" role="status" aria-live="polite"></p>
+          <button class="btn btn-zetta btn-lg w-100 login-submit" id="activateButton" type="submit">
+            Activar cuenta
+          </button>
+        </form>
+      </section>
+    </main>
+    <footer class="login-footer">
+      <span><b class="grad">ZETTA</b> · Gestión académica</span>
+      <span>© 2026 ZETTA</span>
+    </footer>
+  </body>
+</html>

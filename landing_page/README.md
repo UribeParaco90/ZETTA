@@ -18,3 +18,15 @@ previa desde registros de Neon. Los certificados no son documentos oficiales.
 Los menús marcan como “Próximamente” las funciones que no tienen una pantalla
 y flujo de datos completos. La descripción actualizada de configuración,
 esquema y límites está en [`backend/README.md`](../backend/README.md).
+
+## Organización
+
+- `backend/`: API, reglas de negocio, seguridad, migraciones y pruebas.
+- `css/` y `js/`: estilos y lógica del sitio, el panel y la planilla.
+- `vendor/`: dependencias de frontend servidas localmente.
+- `../modules/<modulo>/`: páginas y recursos propios de cada módulo académico.
+
+El servidor publica `landing_page/` como raíz web y `modules/` bajo `/modules`.
+Por eso, los recursos compartidos de una página de módulo deben usar rutas web
+como `/css/styles.css` o `/vendor/bootstrap/bootstrap.min.css`, no rutas a la
+carpeta física `landing_page/`.
