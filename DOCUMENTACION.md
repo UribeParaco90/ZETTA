@@ -1,130 +1,59 @@
-1. Maqueta Estructural e Interfaz de Usuario (UI/UX)
-La interfaz de ZETTA implementa una estética traslúcida (Frosted Glass) sobre un fondo oscuro dinámico, estructurada para minimizar la carga cognitiva del usuario mediante acceso rápido flotante.
+# ZETTA: roles, reglas funcionales y datos
 
-Componentes de Estilo:
-- Barra Isla Flotante (Top Bar): Suspendida a 20px del borde superior con un borde sutil rgba(255, 255, 255, 0.18) y desenfoque de fondo (backdrop-filter blur).
-- Tarjetas Glassmorphic: Paneles de información con transparencia suave, sombras proyectadas y bordes reactivos (hover) para interacción visual.
-- Paleta de Colores: Fondo base en gradiente oscuro nocturno (#0f172a a #1e1b4b), acentos primarios en cian eléctrico (#38bdf8) e índigo (#818cf8).
+ZETTA es una plataforma académica SaaS multiinstitución con control de acceso por rol y aislamiento en la API. Los permisos de las pantallas no sustituyen los controles del servidor.
 
-2. Matriz Granular de Permisos por Rol
-El sistema utiliza un modelo de Control de Acceso Basado en Roles (RBAC) con soporte para aislamiento por institución (Multitenancy):
-<img width="1408" height="768" alt="Gemini_Generated_Image_91996k91996k9199" src="https://github.com/user-attachments/assets/43be37a1-d1fc-4376-afe9-2cb81a9770dd" />
+## Roles y módulos
 
-3. Desglose Mapeado de Módulos y Funciones:
+| Rol | Alcance | Funciones disponibles |
+|---|---|---|
+| SuperAdmin | Plataforma | Crear instituciones y administradores, revisar métricas de uso por plan y auditoría global. |
+| Admin | Una institución | Usuarios, matrículas, cursos, materias, horarios, actividades, planilla masiva, configuración de evaluación, cierres, excusas, marca institucional y auditoría de cambios. |
+| Profesor | Cursos y materias asignados | Actividades y notas mediante planilla masiva, asistencia, observaciones y consulta de horario. |
+| Estudiante | Sus propios datos | Perfil, edición de correo, notas, asistencia, observaciones y vista previa imprimible de calificaciones. |
+| Acudiente | Estudiantes vinculados | Autorregistro, vinculación mediante código, consulta de matrículas, notas, asistencia, observaciones y presentación de excusas. |
 
-<img width="717" height="356" alt="image" src="https://github.com/user-attachments/assets/ae7ebfa1-315c-4e60-84ac-db982fb31b71" />
+## Alta, correos y acceso
 
-  1. Módulo de Matrículas y Usuarios (Ubicación: Menú Isla -> Matrículas)
-  - Gestión de Estudiantes y Cursos: Registro de datos personales, asignación de cursos/grupos (ej. 10°A) y vinculación con acudientes responsables.
-  - Asignación Docente: Vinculación de profesores con asignaturas específicas e intensidad horaria semanal.
+- Solo SuperAdmin registra instituciones y crea sus cuentas Admin.
+- Admin crea cuentas de Profesor y Estudiante. El servidor genera `nombre.apellido@dominio` y prueba sufijos numéricos si el correo ya existe.
+- Las cuentas creadas por Admin no reciben una contraseña predeterminada. Se crea un token aleatorio, de un solo uso y con vencimiento de 24 horas. El administrador obtiene el enlace una vez al crear la cuenta; también se encola un correo de activación.
+- Acudientes se autorregistran y vinculan uno o varios estudiantes con el código generado desde el perfil del estudiante. La relación es muchos a muchos.
+- Estudiantes pueden actualizar su correo institucional y registrar un correo personal.
+- SMTP se configura con variables de entorno. Sin configuración, los envíos permanecen pendientes en `email_outbox`; no se incluyen credenciales en el repositorio.
 
-  2. Módulo Académico y Calificaciones (Ubicación: Menú Isla -> Académico)
-  - Ingreso Masivo de Notas: Matriz interactiva para que los profesores ingresen notas por periodo académico.
-  - Cálculo Automático: Motor de ponderación por porcentajes (evaluaciones, tareas, talleres) y generación automática de boletines en PDF.
-  
-  3. Módulo de Control de Asistencia (Ubicación: Menú Isla -> Asistencia)
-  - Registro en Tiempo Real: Toma de lista diaria por asignatura con estados (Presente, Ausente, Excusado, Retardo).
-  - Alertas Tempranas: Notificación automática al módulo del acudiente en caso de inasistencia no justificada.
+## Institución y evaluación
 
-  4. Módulo de Configuración y Auditoría (Ubicación: Menú Isla -> Ajustes)
-  - Parámetros Institucionales: Escala de valoración académica, número de periodos lectivos y personalización de marca (logos, firmas institucionales).
-  - Historial de Cambios: Registro de auditoría (Log) de modificaciones realizadas a las calificaciones o datos sensibles.
+- La institución guarda un dominio único, nombre, plan y referencias de logo/firma. Admin puede actualizar su dominio y marca. El nombre se puede cambiar como máximo cada 60 días; el servidor guarda la fecha del cambio.
+- Admin configura la escala, la nota mínima aprobatoria, el número de periodos y sus pesos. Los pesos deben sumar exactamente 100 %.
+- Profesor define actividades por asignatura y periodo; el peso total no puede superar 100 %. Solo se registran notas de actividad cuando sus pesos suman 100 %.
+- La planilla masiva permite consultar las actividades y estudiantes de una asignatura, guardar varias notas en una operación y actualizar notas existentes. Las notas vacías no modifican el valor guardado.
+- El cálculo de nota requerida usa las ponderaciones de los periodos ya calificados y pendientes. Si supera el máximo de la escala, se informa que no es matemáticamente posible aprobar.
+- Admin puede cerrar o reabrir periodos. El cierre requiere que los pesos de periodos y actividades sumen 100 % y bloquea cambios de actividades y calificaciones; solo Admin puede reabrir. Las operaciones sensibles quedan en `audit_log`.
+- Los certificados son vistas previas basadas en los datos de Neon, imprimibles desde el navegador; no son documentos oficiales.
 
-  5. Módulo de Certificaciones
-  - Certificado de calificaciones: selección de estudiante y periodo, consulta de notas por asignatura y cálculo ponderado con la escala de 0 a 5.
-  - Vista previa imprimible: permite imprimir o guardar como PDF desde el navegador.
-  - Estado actual: interfaz de demostración con registros locales ficticios; no consulta la base de datos ni emite documentos oficiales.
+## Asistencia, excusas y observaciones
 
-4. Diagrama y Estructura de la Base de Datos
-La arquitectura relacional utiliza claves primarias tipo UUID para garantizar la seguridad de los registros en entornos distribuidos.
+- Profesores registran asistencia en las asignaturas asignadas. Una ausencia genera una alerta de correo al acudiente vinculado y queda en la cola de correo.
+- Acudientes pueden presentar excusas; Admin puede aprobarlas o rechazarlas.
+- Profesores registran observaciones solo sobre estudiantes de cursos que tienen asignados. Estudiantes y acudientes vinculados pueden consultarlas.
+- `horarios` registra día, hora y aula por asignatura; Admin los administra y el profesor consulta sus propios horarios.
 
-Diccionario de Datos Relacional:
+## Modelo relacional
 
-1.INSTITUCIONES
+El esquema vigente está en `backend/schema.postgres.sql`; para actualizar una base existente se debe respaldar y ejecutar `backend/migrations/001_funcionalidad_roles.sql`.
 
-id (PK): Identificador único de la institución.
+- `instituciones`: dominio, plan, nombre y marca.
+- `usuarios`: institución opcional para SuperAdmin, credenciales hash opcionales hasta activar, estado de primer ingreso y correo personal.
+- `cursos`, `asignaturas`, `horarios`, `matriculas`: estructura académica, aula, dirección de grupo e intensidad horaria.
+- `configuracion_institucional`, `periodos`: escala, nota mínima, cantidad y ponderación de periodos, con estado de cierre.
+- `actividades`, `notas_actividades` y `calificaciones`: evaluación por actividad y compatibilidad con notas previas.
+- `acudientes_estudiantes`: vínculo N:M; la migración conserva relaciones antiguas de `matriculas.acudiente_id`.
+- `asistencia`, `excusas`, `observaciones`: seguimiento académico y de convivencia.
+- `activaciones_cuenta`, `zetta_sessions`, `email_outbox`: activación segura, sesiones opacas y entrega de mensajes.
+- `audit_log`: registro de cambios sensibles con alcance institucional o global.
 
-nombre: Nombre del colegio o universidad.
+La tabla raíz `GestionAcademica.sql` contiene el esquema para una instalación nueva y se mantiene alineada con el esquema de backend. Los planes son métricas de uso; no hay cobros reales ni integración con una pasarela de pago.
 
-nit_codigo: Código de registro oficial.
+## Interfaz
 
-plan_suscripcion: Nivel del servicio (Lite, Standard, Enterprise).
-
-2.USUARIOS
-
-id (PK): Identificador del usuario.
-
-institucion_id (FK): Vinculación con la institución pertenencia.
-
-documento: Número de identificación.
-
-nombre, apellido, email, password_hash.
-
-rol: Rol del usuario dentro del sistema (SuperAdmin, Admin, Profesor, Estudiante, Acudiente).
-
-3. CURSOS
-
-id (PK): Identificador del curso.
-
-institucion_id (FK): Colegio al que pertenece el curso.
-
-nombre: Denominación del grupo (ej. "10°B").
-
-periodo_lectivo: Año escolar en curso.
-
-4. ASIGNATURAS
-
-id (PK): Identificador de la materia.
-
-curso_id (FK): Curso donde se imparte.
-
-profesor_id (FK): Docente a cargo.
-
-nombre: Nombre de la asignatura.
-
-5. MATRICULAS
-
-id (PK): Identificador de la matrícula.
-
-estudiante_id (FK): Usuario con rol estudiante.
-
-curso_id (FK): Curso asignado.
-
-acudiente_id (FK): Usuario con rol acudiente vinculado.
-
-6. CALIFICACIONES
-
-id (PK): Identificador del registro.
-
-matricula_id (FK): Estudiante matriculado.
-
-asignatura_id (FK): Materia correspondiente.
-
-periodo: Número de periodo (1, 2, 3, 4).
-
-nota / porcentaje: Valor numérico y su peso en la nota final.
-
-7. ASISTENCIA
-
-id (PK): Identificador de la asistencia.
-
-matricula_id (FK): Estudiante.
-
-asignatura_id (FK): Materia.
-
-fecha: Día del registro.
-
-estado: Indicador de presencia (Presente, Ausente, Excusado, Retardo).
-
-  
-
-
---------------------------------
-
-Esto son anotaciones importantes:
-
-1. Para los correos de maestros y estudiantes, se debe generar automáticamente, con el dominio de la institución.
-
-2. El nombre de la institución solo lo puede agregar el administrador de la escuela y solo puede cambiarse en 60 días. 
-
-3. Debe de haber un campo donde el administrador de la institución deba agregar el dominio de la institución y con este generar los correos automáticamente (Este correo el estudiante puede editarlo) 
+La interfaz conserva el tema oscuro glassmórfico, gradientes nocturnos, acentos cian/índigo y tarjetas de navegación por rol. Las operaciones académicas y la consola administrativa consultan la API; las vistas de certificado muestran de forma explícita que no tienen validez oficial.

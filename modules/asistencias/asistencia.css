@@ -353,6 +353,29 @@ body {
 
 @media (max-width: 575.98px) {
   .table-card {
-    padding: 14px;
+    padding: 12px;
+  }
+
+  .module-head {
+    padding-top: 100px;
+  }
+
+  .module-head h1 {
+    font-size: clamp(1.7rem, 8vw, 2.2rem);
+  }
+
+  .tabs-zetta {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .tabs-zetta .nav-link {
+    white-space: nowrap;
+  }
+
+  .estado {
+    min-width: 42px;
+    padding-inline: 9px;
   }
 }

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Administra tus datos de perfil y vínculos académicos en ZETTA.">
+    <title>Mi perfil · ZETTA</title>
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/login.css">
+    <script src="js/profile.js" defer></script>
+  </head>
+  <body class="login-page">
+    <header class="login-topbar">
+      <a class="navbar-brand fw-bold grad" href="/dashboard.html">ZETTA</a>
+      <a class="back-link" href="/dashboard.html">Volver al panel</a>
+    </header>
+    <main class="login-layout">
+      <section class="login-card glass" aria-labelledby="profileTitle">
+        <div class="login-heading">
+          <p class="eyebrow mb-2">PORTAL ACADÉMICO</p>
+          <h1 id="profileTitle" class="h2 fw-bold mb-2">Mi perfil</h1>
+          <p class="text-muted mb-0" id="profileName"></p>
+        </div>
+        <form id="studentProfile" class="login-form" hidden>
+          <div>
+            <label class="form-label" for="document">Documento</label>
+            <input class="form-control field" id="document" readonly>
+          </div>
+          <div>
+            <label class="form-label" for="institutionEmail">Correo institucional</label>
+            <input class="form-control field" id="institutionEmail" type="email" maxlength="150" required>
+          </div>
+          <div>
+            <label class="form-label" for="personalEmail">Correo personal</label>
+            <input class="form-control field" id="personalEmail" type="email" maxlength="150">
+          </div>
+          <p class="form-feedback" id="studentFeedback" role="status" aria-live="polite"></p>
+          <button class="btn btn-zetta" type="submit">Guardar correo</button>
+          <button class="btn btn-ghost" id="newLinkCode" type="button">Generar código de vinculación</button>
+          <p class="form-feedback" id="linkCode" role="status" aria-live="polite"></p>
+        </form>
+        <form id="guardianLink" class="login-form" hidden>
+          <div>
+            <label class="form-label" for="linkCodeInput">Código de vinculación del estudiante</label>
+            <input class="form-control field" id="linkCodeInput" minlength="43" maxlength="43" required>
+          </div>
+          <p class="form-feedback" id="guardianFeedback" role="status" aria-live="polite"></p>
+          <button class="btn btn-zetta" type="submit">Vincular estudiante</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

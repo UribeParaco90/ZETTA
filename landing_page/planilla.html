@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Planilla interactiva para ingresar calificaciones por actividad en ZETTA.">
+    <title>Planilla de notas · ZETTA</title>
+    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/planilla.css">
+    <script src="/js/planilla.js" defer></script>
+  </head>
+  <body class="grade-sheet-page">
+    <header class="grade-sheet-topbar">
+      <a class="navbar-brand fw-bold grad" href="/dashboard.html">ZETTA</a>
+      <div class="grade-sheet-user">
+        <span id="currentUser" aria-live="polite">Cargando perfil…</span>
+        <button class="btn btn-ghost btn-sm" id="logoutButton" type="button">Salir</button>
+      </div>
+    </header>
+    <main class="grade-sheet-shell">
+      <div class="grade-sheet-heading">
+        <div>
+          <p class="eyebrow mb-2">GESTIÓN ACADÉMICA</p>
+          <h1 class="display-6 fw-bold mb-2">Planilla de notas</h1>
+          <p class="text-muted mb-0">Ingresa o actualiza en una sola vista las notas de cada estudiante y actividad.</p>
+        </div>
+        <a class="btn btn-ghost" href="/dashboard.html">Volver al panel</a>
+      </div>
+      <section class="grade-sheet-controls glass" aria-label="Seleccionar asignatura y periodo">
+        <label class="grade-sheet-field">
+          <span>Asignatura</span>
+          <select id="subjectSelect" class="form-select" required>
+            <option value="">Cargando asignaturas…</option>
+          </select>
+        </label>
+        <label class="grade-sheet-field">
+          <span>Periodo</span>
+          <select id="periodSelect" class="form-select" required></select>
+        </label>
+        <button class="btn btn-zetta align-self-end" id="loadSheet" type="button">Cargar planilla</button>
+      </section>
+      <p class="grade-sheet-feedback" id="sheetFeedback" role="status" aria-live="polite"></p>
+      <section class="grade-sheet-content glass" aria-labelledby="sheetTitle">
+        <div class="grade-sheet-summary">
+          <div>
+            <h2 class="h4 fw-bold mb-1" id="sheetTitle">Selecciona una asignatura</h2>
+            <p class="text-muted mb-0" id="sheetDetails">Las actividades deben sumar el 100 % para habilitar el registro.</p>
+          </div>
+          <div class="grade-sheet-status" id="sheetStatus" role="status"></div>
+        </div>
+        <div class="grade-sheet-table-wrap">
+          <table class="table grade-sheet-table align-middle mb-0">
+            <thead id="gradeSheetHead"></thead>
+            <tbody id="gradeSheetBody"></tbody>
+          </table>
+          <div class="grade-sheet-empty" id="sheetEmpty">
+            Carga una asignatura para ver sus estudiantes y actividades.
+          </div>
+        </div>
+        <div class="grade-sheet-footer">
+          <p class="small text-muted mb-0">Deja una celda vacía para conservar su valor actual. Las notas se califican de 0 a 100.</p>
+          <button class="btn btn-zetta" id="saveGrades" type="button" disabled>Guardar notas</button>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

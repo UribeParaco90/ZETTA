@@ -1,37 +1,32 @@
-# ZETTA · Landing page
+# ZETTA
 
-Página informativa de ZETTA creada con HTML, CSS propio y Bootstrap 5.3.
-Bootstrap se carga desde `vendor/bootstrap/`, así que sus estilos y componentes
-funcionan sin depender de una conexión a internet. El JavaScript propio gestiona
-el registro local de demostración y la vista informativa de perfiles.
+La página informativa y los módulos usan Bootstrap local y estilos propios.
+Para usar login, registro, administración o módulos académicos, inicia la API
+de Neon desde la raíz con `npm --prefix backend start` y abre
+`http://localhost:3000`.
 
-## Abrir el sitio
+El formulario público solo crea cuentas de Acudiente asociadas a una
+institución existente. El login valida el rol y las credenciales en Neon.
+Las cuentas falsas de demostración y el almacenamiento local de usuarios se
+retiraron.
 
-Abre `index.html` directamente en el navegador o usa la extensión Live Server
-de VS Code para servir la carpeta.
+El panel de administración permite CRUD de las entidades existentes, limitado
+por perfil y por institución. El módulo de asistencia permite registrar y
+consultar estados desde Neon; el módulo de calificaciones genera una vista
+previa desde registros de Neon. Los certificados no son documentos oficiales.
 
-## Estructura
+Los menús marcan como “Próximamente” las funciones que no tienen una pantalla
+y flujo de datos completos. La descripción actualizada de configuración,
+esquema y límites está en [`backend/README.md`](../backend/README.md).
 
-- `index.html`: contenido y estructura semántica de la página.
-- `login.html`: acceso con las cuentas de demostración o cuentas locales creadas.
-- `registro.html`: registro de una cuenta de demostración y catálogo de roles.
-- `css/styles.css`: estilos visuales propios y adaptación de Bootstrap.
-- `css/login.css`: estilos de acceso y registro.
-- `js/demo-accounts.js`: perfiles, credenciales de demostración y almacenamiento local.
-- `js/login.js` y `js/register.js`: comportamiento de acceso y registro.
-- `vendor/bootstrap/`: hojas de estilo, JavaScript y licencia de Bootstrap.
+## Organización
 
-## Cuentas y roles
+- `backend/`: API, reglas de negocio, seguridad, migraciones y pruebas.
+- `css/` y `js/`: estilos y lógica del sitio, el panel y la planilla.
+- `vendor/`: dependencias de frontend servidas localmente.
+- `../modules/<modulo>/`: páginas y recursos propios de cada módulo académico.
 
-En `login.html` están disponibles cinco cuentas ficticias preconfiguradas, una
-por rol. En `registro.html` también se pueden crear cuentas adicionales: elige
-un rol para ver sus permisos previstos y regístrate con un correo distinto.
-Las cuentas nuevas se guardan en el almacenamiento local del navegador y sus
-contraseñas se derivan con PBKDF2. Usa localhost (por ejemplo, Live Server) o
-HTTPS para disponer de Web Crypto.
-
-Este registro es únicamente una simulación del lado del cliente. El rol se puede
-seleccionar libremente, no existe verificación de identidad, sesión segura,
-backend ni control de acceso aplicado a rutas u operaciones. No uses datos ni
-contraseñas reales. Para un despliegue real se necesita autenticación y
-autorización del lado del servidor.
+El servidor publica `landing_page/` como raíz web y `modules/` bajo `/modules`.
+Por eso, los recursos compartidos de una página de módulo deben usar rutas web
+como `/css/styles.css` o `/vendor/bootstrap/bootstrap.min.css`, no rutas a la
+carpeta física `landing_page/`.

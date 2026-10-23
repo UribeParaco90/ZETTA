@@ -1,14 +1,21 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Open login.html",
-            "file": "c:\\Users\\migue\\OneDrive\\Documentos\\701\\#3504434\\Diego - Algoritmia\\ZETTA\\landing_page\\login.html"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "ZETTA: iniciar servidor",
+      "program": "${workspaceFolder}\\backend\\server.js",
+      "cwd": "${workspaceFolder}\\backend",
+      "envFile": "${workspaceFolder}\\backend\\.env",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "serverReadyAction": {
+        "pattern": "ZETTA disponible en (https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      }
+    }
+  ]
 }
