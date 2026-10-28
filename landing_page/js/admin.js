@@ -1,5 +1,13 @@
 (() => {
-  const state = { user: null, entities: [], entity: null, records: [], references: new Map(), recordId: null };
+  const state = {
+    user: null,
+    entities: [],
+    entity: null,
+    records: [],
+    references: new Map(),
+    userGroups: new Map(),
+    recordId: null
+  };
   const element = (selector) => document.querySelector(selector);
   const navigation = element("#entityNavigation");
   const title = element("#entityTitle");
@@ -41,10 +49,21 @@
   };
 
   const referenceLabel = (key, record) => {
-    if (key === "usuarios") return `${record.nombre} ${record.apellido} · ${record.email}`;
+    if (key === "usuarios") return `${record.nombre} ${record.apellido}`;
     if (key === "instituciones") return record.nombre;
     if (key === "cursos") return `${record.nombre} · ${record.periodo_lectivo}`;
     if (key === "asignaturas") return record.nombre;
+    if (key === "matriculas") {
+      const student = record.estudiante_nombre
+        || (state.references.get("usuarios") || []).find((item) => item.id === record.estudiante_id);
+      const studentName = typeof student === "string"
+        ? student
+        : student ? `${student.nombre} ${student.apellido}` : "Estudiante";
+      const course = record.curso_nombre
+        || (state.references.get("cursos") || []).find((item) => item.id === record.curso_id)?.nombre
+        || "Curso";
+      return `${studentName} · ${course}`;
+    }
     return Object.entries(record).filter(([field]) => field !== "id").slice(0, 2).map(([, value]) => value).join(" · ");
   };
 
@@ -59,14 +78,86 @@
     return String(value);
   };
 
+  const teacherDisplayFields = {
+    cursos: [
+      { key: "nombre", label: "Curso" },
+      { key: "periodo_lectivo", label: "Año lectivo" },
+      { key: "rol_docente", label: "Rol en el curso" }
+    ],
+    asignaturas: [
+      { key: "nombre", label: "Asignatura" },
+      { key: "curso_nombre", label: "Curso" }
+    ],
+    matriculas: [
+      { key: "estudiante_nombre", label: "Estudiante" },
+      { key: "curso_nombre", label: "Curso" }
+    ],
+    calificaciones: [
+      { key: "asignatura_nombre", label: "Asignatura" },
+      { key: "periodo", label: "Periodo" },
+      { key: "nota", label: "Nota" },
+      { key: "porcentaje", label: "Porcentaje" }
+    ]
+  };
+
+  const prepareTeacherRecords = async (entityKey, records) => {
+    if (state.user.role !== "Profesor" || !teacherDisplayFields[entityKey]) return records;
+    state.entity.displayFields = teacherDisplayFields[entityKey];
+
+    if (entityKey === "cursos") {
+      return records.map((record) => ({
+        ...record,
+        rol_docente: record.rol_docente || (record.director_grupo_id === state.user.id
+          ? "Director de grupo"
+          : "Docente por asignatura")
+      }));
+    }
+
+    if (entityKey === "asignaturas" || entityKey === "matriculas") {
+      const courses = await api("/api/cursos?limit=200");
+      const courseNames = new Map(courses.records.map((course) => [course.id, course.nombre]));
+      if (entityKey === "asignaturas") {
+        return records.map((record) => ({
+          ...record,
+          curso_nombre: record.curso_nombre || courseNames.get(record.curso_id) || "Curso asignado"
+        }));
+      }
+
+      const students = await api("/api/academico/estudiantes");
+      const studentNames = new Map(students.map((student) => [student.id, `${student.nombre} ${student.apellido}`]));
+      return records.map((record) => ({
+        ...record,
+        estudiante_nombre: record.estudiante_nombre || studentNames.get(record.estudiante_id) || "Estudiante",
+        curso_nombre: record.curso_nombre || courseNames.get(record.curso_id) || "Curso asignado"
+      }));
+    }
+
+    const subjects = await api("/api/asignaturas?limit=200");
+    const subjectNames = new Map(subjects.records.map((subject) => [subject.id, subject.nombre]));
+    return records.map((record) => ({
+      ...record,
+      asignatura_nombre: record.asignatura_nombre || subjectNames.get(record.asignatura_id) || "Asignatura"
+    }));
+  };
+
   const loadReferences = async () => {
     const keys = new Set(state.entity.fields
       .filter((field) => field.type === "reference" && !field.readOnly)
       .map((field) => field.reference));
     for (const key of keys) {
+      if (!state.entity.canWrite) continue;
       if (key === "instituciones" && !["Admin", "SuperAdmin"].includes(state.user.role)) continue;
       if (key === "instituciones" && state.user.role === "Admin") {
         state.references.set(key, [{ id: state.user.institutionId, nombre: "Mi institución" }]);
+      } else if (key === "usuarios" && state.entity.key === "matriculas") {
+        const students = await api("/api/academico/estudiantes");
+        state.references.set(key, [...new Map(students.map((student) => [student.id, student])).values()]);
+      } else if (key === "usuarios" && state.entity.key === "cursos") {
+        const result = await api("/api/usuarios?limit=200");
+        state.references.set(key, result.records.filter((user) => user.rol === "Profesor"));
+      } else if (key === "usuarios" && state.user.role === "Profesor") {
+        const result = await api("/api/academico/estudiantes");
+        state.references.set(key, result);
       } else {
         const result = await api(`/api/${key}?limit=200`);
         state.references.set(key, result.records);
@@ -88,7 +179,8 @@
   };
 
   const renderRecords = () => {
-    const fields = state.entity.fields.filter((field) => state.entity.display.includes(field.key));
+    const fields = state.entity.displayFields
+      || state.entity.fields.filter((field) => state.entity.display.includes(field.key));
     const normalizeSearch = (value) => String(value ?? "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -96,13 +188,17 @@
     const search = normalizeSearch(element("#searchRecords").value.trim());
     const institutionId = element("#institutionFilter").value;
     const role = element("#roleFilter").value;
+    const groupId = element("#groupFilter").value;
     const institutionNames = new Map(
       (state.references.get("instituciones") || []).map((institution) => [institution.id, institution.nombre])
     );
+    const isUserList = state.entity.key === "usuarios";
     const isSuperAdminUserList = state.user.role === "SuperAdmin" && state.entity.key === "usuarios";
+    const isAdminUserList = state.user.role === "Admin" && state.entity.key === "usuarios";
     const records = state.records.filter((record) => {
       if (isSuperAdminUserList && institutionId && record.institucion_id !== institutionId) return false;
-      if (isSuperAdminUserList && role && record.rol !== role) return false;
+      if (isUserList && role && record.rol !== role) return false;
+      if (isAdminUserList && groupId && !state.userGroups.get(groupId)?.has(record.id)) return false;
       const searchableValues = fields.map((field) => displayValue(field, record[field.key]));
       if (isSuperAdminUserList) {
         searchableValues.push(institutionNames.get(record.institucion_id) || "");
@@ -172,7 +268,7 @@
       }
       tableBody.append(row);
     });
-    element("#recordCount").textContent = isSuperAdminUserList
+    element("#recordCount").textContent = isUserList
       ? `${records.length} de ${state.records.length} usuarios`
       : `${records.length} registros`;
     element("#emptyState").hidden = records.length > 0;
@@ -181,15 +277,18 @@
   const loadRecords = async () => {
     const limit = state.user.role === "SuperAdmin" && state.entity.key === "usuarios" ? 2000 : 200;
     const result = await api(`/api/${state.entity.key}?limit=${limit}`);
-    state.records = result.records;
+    state.records = await prepareTeacherRecords(state.entity.key, result.records);
     renderRecords();
   };
 
   const renderUserFilters = () => {
-    const visible = state.user.role === "SuperAdmin" && state.entity.key === "usuarios";
-    element("#institutionFilterGroup").hidden = !visible;
-    element("#roleFilterGroup").hidden = !visible;
-    if (!visible) return;
+    const isUserList = state.entity.key === "usuarios";
+    const isSuperAdminUserList = state.user.role === "SuperAdmin" && isUserList;
+    const isAdminUserList = state.user.role === "Admin" && isUserList;
+    element("#institutionFilterGroup").hidden = !isSuperAdminUserList;
+    element("#roleFilterGroup").hidden = !isUserList;
+    element("#groupFilterGroup").hidden = !isAdminUserList;
+    if (!isSuperAdminUserList) return;
 
     const institutionFilter = element("#institutionFilter");
     const selectedInstitution = institutionFilter.value;
@@ -201,6 +300,46 @@
         institutionFilter.add(new Option(institution.nombre, institution.id));
       });
     institutionFilter.value = selectedInstitution;
+  };
+
+  const loadUserGroupFilters = async () => {
+    const groupFilter = element("#groupFilter");
+    const isAdminUserList = state.user.role === "Admin" && state.entity.key === "usuarios";
+    groupFilter.replaceChildren(new Option("Todos los grupos", ""));
+    state.userGroups.clear();
+    if (!isAdminUserList) return;
+
+    const [courses, enrollments, subjects] = await Promise.all([
+      api("/api/cursos?limit=200"),
+      api("/api/matriculas?limit=200"),
+      api("/api/asignaturas?limit=200")
+    ]);
+    const courseNames = new Map();
+    const addUserToGroup = (groupId, userId) => {
+      if (!groupId || !userId) return;
+      if (!state.userGroups.has(groupId)) state.userGroups.set(groupId, new Set());
+      state.userGroups.get(groupId).add(userId);
+    };
+
+    courses.records.forEach((course) => {
+      courseNames.set(course.id, `${course.nombre} · ${course.periodo_lectivo}`);
+      addUserToGroup(course.id, course.director_grupo_id);
+    });
+    enrollments.records.forEach((enrollment) => {
+      addUserToGroup(enrollment.curso_id, enrollment.estudiante_id);
+      addUserToGroup(enrollment.curso_id, enrollment.acudiente_id);
+    });
+    subjects.records.forEach((subject) => addUserToGroup(subject.curso_id, subject.profesor_id));
+
+    courses.records
+      .slice()
+      .sort((left, right) => (
+        left.nombre.localeCompare(right.nombre, "es")
+        || Number(right.periodo_lectivo) - Number(left.periodo_lectivo)
+      ))
+      .forEach((course) => {
+        groupFilter.add(new Option(courseNames.get(course.id), course.id));
+      });
   };
 
   const selectEntity = async (entity) => {
@@ -215,6 +354,7 @@
     try {
       await loadReferences();
       renderUserFilters();
+      await loadUserGroupFilters();
       await loadRecords();
       report("");
     } catch (error) {
@@ -227,6 +367,134 @@
     const label = document.createElement("label");
     label.className = "form-label";
     label.textContent = field.label;
+    const isStudentEnrollmentSearch = state.entity.key === "matriculas" && field.key === "estudiante_id";
+    const isSubjectTeacherSearch = state.entity.key === "asignaturas" && field.key === "profesor_id";
+    const isCourseDirectorSearch = state.entity.key === "cursos" && field.key === "director_grupo_id";
+    if (isStudentEnrollmentSearch || isSubjectTeacherSearch || isCourseDirectorSearch) {
+      wrapper.className = "reference-search-control";
+      const input = document.createElement("input");
+      input.className = "form-control field";
+      input.type = "search";
+      input.autocomplete = "off";
+      input.placeholder = isStudentEnrollmentSearch
+        ? "Escribe el nombre del estudiante"
+        : "Escribe el nombre del profesor";
+      input.required = Boolean(field.required);
+      input.setAttribute("role", "combobox");
+      input.setAttribute("aria-autocomplete", "list");
+      input.setAttribute("aria-expanded", "false");
+      const listId = `${field.key}SearchOptions`;
+      input.setAttribute("aria-controls", listId);
+
+      const hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = field.key;
+      hidden.value = record?.[field.key] || "";
+
+      const options = document.createElement("div");
+      options.className = "student-search-options";
+      options.id = listId;
+      options.role = "listbox";
+      options.hidden = true;
+
+      const references = [...new Map((state.references.get("usuarios") || [])
+        .filter((user) => !(isSubjectTeacherSearch || isCourseDirectorSearch) || user.rol === "Profesor")
+        .map((user) => [user.id, user])).values()]
+        .sort((left, right) => (
+          `${left.nombre} ${left.apellido}`.localeCompare(`${right.nombre} ${right.apellido}`, "es")
+        ));
+      const normalize = (value) => String(value ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLocaleLowerCase();
+      const selectedReference = references.find((user) => user.id === hidden.value);
+      if (selectedReference) input.value = `${selectedReference.nombre} ${selectedReference.apellido}`;
+
+      let activeIndex = -1;
+      let visibleReferences = references;
+      const closeOptions = () => {
+        options.hidden = true;
+        input.setAttribute("aria-expanded", "false");
+        input.removeAttribute("aria-activedescendant");
+        activeIndex = -1;
+      };
+      const selectReference = (user) => {
+        hidden.value = user.id;
+        input.value = `${user.nombre} ${user.apellido}`;
+        input.setCustomValidity("");
+        closeOptions();
+      };
+      const renderOptions = () => {
+        const search = normalize(input.value.trim());
+        visibleReferences = references.filter((user) => (
+          normalize(`${user.nombre} ${user.apellido}`).includes(search)
+        ));
+        options.replaceChildren();
+        visibleReferences.forEach((user, index) => {
+          const option = document.createElement("button");
+          option.type = "button";
+          option.className = "student-search-option";
+          option.id = `${listId}-${index}`;
+          option.role = "option";
+          option.setAttribute("aria-selected", String(index === activeIndex));
+          option.textContent = `${user.nombre} ${user.apellido}`;
+          option.addEventListener("mousedown", (event) => event.preventDefault());
+          option.addEventListener("click", () => selectReference(user));
+          options.append(option);
+        });
+        if (!visibleReferences.length) {
+          const empty = document.createElement("p");
+          empty.className = "student-search-empty";
+          empty.textContent = isStudentEnrollmentSearch
+            ? "No se encontraron estudiantes."
+            : "No se encontraron profesores.";
+          options.append(empty);
+        }
+        options.hidden = false;
+        input.setAttribute("aria-expanded", "true");
+      };
+
+      input.addEventListener("input", () => {
+        hidden.value = "";
+        input.setCustomValidity(input.value
+          ? `Selecciona ${isStudentEnrollmentSearch ? "un estudiante" : "un profesor"} de la lista.`
+          : "");
+        activeIndex = -1;
+        renderOptions();
+      });
+      input.addEventListener("focus", renderOptions);
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeOptions();
+          return;
+        }
+        if (!["ArrowDown", "ArrowUp", "Enter"].includes(event.key)) return;
+        if (options.hidden) renderOptions();
+        if (event.key === "Enter") {
+          if (activeIndex >= 0 && visibleReferences[activeIndex]) {
+            event.preventDefault();
+            selectReference(visibleReferences[activeIndex]);
+          }
+          return;
+        }
+        event.preventDefault();
+        if (!visibleReferences.length) return;
+        const direction = event.key === "ArrowDown" ? 1 : -1;
+        activeIndex = activeIndex < 0
+          ? direction > 0 ? 0 : visibleReferences.length - 1
+          : (activeIndex + direction + visibleReferences.length) % visibleReferences.length;
+        [...options.querySelectorAll('[role="option"]')].forEach((option, index) => {
+          option.setAttribute("aria-selected", String(index === activeIndex));
+        });
+        input.setAttribute("aria-activedescendant", `${listId}-${activeIndex}`);
+      });
+      input.addEventListener("blur", () => window.setTimeout(closeOptions, 120));
+
+      input.id = `record-${field.key}`;
+      label.htmlFor = input.id;
+      wrapper.append(label, input, hidden, options);
+      return wrapper;
+    }
     const control = document.createElement(field.type === "select" || field.type === "reference" ? "select" : "input");
     control.className = field.type === "select" || field.type === "reference"
       ? "form-select field"
@@ -340,6 +608,7 @@
   element("#searchRecords").addEventListener("input", renderRecords);
   element("#institutionFilter").addEventListener("change", renderRecords);
   element("#roleFilter").addEventListener("change", renderRecords);
+  element("#groupFilter").addEventListener("change", renderRecords);
 
   const initialize = async () => {
     const user = await api("/api/auth/me");
@@ -361,6 +630,9 @@
       return;
     }
     state.entities = await api("/api/entities");
+    if (user.role === "Profesor") {
+      state.entities = state.entities.filter((entity) => entity.key !== "usuarios");
+    }
     if (!state.entities.length) throw new Error("Este perfil no tiene entidades disponibles.");
     const requested = new URLSearchParams(window.location.search).get("entity");
     const entity = state.entities.find((item) => item.key === requested) || state.entities[0];

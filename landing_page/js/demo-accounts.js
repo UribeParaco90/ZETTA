@@ -31,7 +31,9 @@
       label: "Profesor",
       description: "Trabaja con los cursos y estudiantes que tiene asignados.",
       permissions: [
-        { label: "Mis Cursos", entity: "asignaturas", path: "/admin.html?entity=asignaturas", available: true },
+        { label: "Mis Materias", entity: "asignaturas", path: "/admin.html?entity=asignaturas", available: true },
+        { label: "Mis Cursos", entity: "cursos", path: "/admin.html?entity=cursos", available: true },
+        { label: "Mis Grupos", entity: "matriculas", path: "/admin.html?entity=matriculas", available: true },
         { label: "Planilla de Notas", entity: "notas_actividades", path: "/planilla.html", available: true },
         { label: "Toma de Asistencia", path: "/modules/asistencias/asistencia.html", available: true },
         { label: "Observador de Aula", entity: "observaciones", path: "/admin.html?entity=observaciones", available: true },
@@ -47,8 +49,8 @@
         { label: "Perfil y correo", path: "/perfil.html", available: true },
         { label: "Mis Notas", path: "/modules/certificaciones/certificado-calificaciones.html", available: true },
         { label: "Nota necesaria para aprobar", path: "/modules/certificaciones/certificado-calificaciones.html", available: true },
-        { label: "Mi Asistencia", entity: "asistencia", path: "/admin.html?entity=asistencia", available: true },
-        { label: "Mi Observador", entity: "observaciones", path: "/admin.html?entity=observaciones", available: true },
+        { label: "Mi Asistencia", path: "/modules/estudiante/seguimiento.html?tipo=asistencia", available: true },
+        { label: "Mi Observador", path: "/modules/estudiante/seguimiento.html?tipo=observaciones", available: true },
         { label: "Mis Boletines", available: false }
       ]
     },

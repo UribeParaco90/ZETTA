@@ -7,8 +7,8 @@
     <title>Administración · ZETTA</title>
     <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/admin.css">
-    <script src="js/admin.js" defer></script>
+    <link rel="stylesheet" href="css/admin.css?v=users-group-filters-1">
+    <script src="js/admin.js?v=users-group-filters-1" defer></script>
   </head>
   <body class="admin-page">
     <header class="admin-topbar">
@@ -51,9 +51,17 @@
             <span>Perfil</span>
             <select id="roleFilter" aria-label="Filtrar por perfil">
               <option value="">Todos los perfiles</option>
-              <option value="Admin">Rectores</option>
+              <option value="SuperAdmin">Superadministradores</option>
+              <option value="Admin">Administradores</option>
               <option value="Profesor">Profesores</option>
               <option value="Estudiante">Estudiantes</option>
+              <option value="Acudiente">Acudientes</option>
+            </select>
+          </label>
+          <label class="record-filter" id="groupFilterGroup" hidden>
+            <span>Grupo</span>
+            <select id="groupFilter" aria-label="Filtrar por grupo">
+              <option value="">Todos los grupos</option>
             </select>
           </label>
           <button class="btn btn-ghost btn-sm" id="refreshRecords" type="button">Actualizar</button>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Consulta tu asistencia y observaciones académicas en ZETTA.">
+    <title>Mi seguimiento · ZETTA</title>
+    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/modules/certificaciones/certificacion.css?v=student-table-contrast-2">
+    <script src="/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="seguimiento.js" defer></script>
+  </head>
+  <body class="cert-page student-records-page">
+    <nav class="navbar navbar-expand-md island" aria-label="Navegación de módulos">
+      <a class="navbar-brand fw-bold grad" href="/dashboard.html">ZETTA</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#menuSeguimiento"
+        aria-controls="menuSeguimiento"
+        aria-expanded="false"
+        aria-label="Abrir o cerrar el menú"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menuSeguimiento">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link" href="/dashboard.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" id="attendanceLink" href="?tipo=asistencia">Mi asistencia</a></li>
+          <li class="nav-item"><a class="nav-link" id="observationsLink" href="?tipo=observaciones">Mi observador</a></li>
+          <li class="nav-item"><a class="nav-link" id="gradesLink" href="/modules/certificaciones/certificado-calificaciones.html">Mis notas</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <span class="user-chip">
+            <span class="avatar" aria-hidden="true"></span>
+            <span id="userName"></span>
+          </span>
+          <button class="btn btn-ghost btn-sm px-3" id="logoutButton" type="button">Salir</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="cert-module">
+      <header class="container cert-head">
+        <div>
+          <span class="eyebrow">PORTAL ACADÉMICO</span>
+          <h1 class="fw-bold mt-2" id="recordsHeading">Mi seguimiento</h1>
+          <p class="lead mb-0" id="recordsDescription"></p>
+        </div>
+      </header>
+
+      <section class="container cert-content" aria-label="Registros académicos">
+        <div class="glass p-3 p-md-4">
+          <div class="grades-table-wrap">
+            <table class="table grades-table align-middle mb-0">
+              <thead id="recordsHead"></thead>
+              <tbody id="recordsBody"></tbody>
+            </table>
+          </div>
+          <p class="cert-feedback mb-0 mt-3" id="recordsFeedback" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

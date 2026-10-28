@@ -31,9 +31,10 @@
       </button>
       <div class="collapse navbar-collapse" id="menuCertificaciones">
         <ul class="navbar-nav mx-auto">
-          <li class="nav-item"><a class="nav-link" href="/index.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="../asistencias/asistencia.html">Asistencia</a></li>
-          <li class="nav-item"><a class="nav-link active" href="certificado-calificaciones.html" aria-current="page">Certificaciones</a></li>
+          <li class="nav-item"><a class="nav-link" href="/dashboard.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" id="attendanceModuleLink" hidden href="../asistencias/asistencia.html">Mi asistencia</a></li>
+          <li class="nav-item"><a class="nav-link" id="observationsModuleLink" hidden href="/modules/estudiante/seguimiento.html?tipo=observaciones">Mi observador</a></li>
+          <li class="nav-item"><a class="nav-link active" id="gradesModuleLink" href="certificado-calificaciones.html" aria-current="page">Mis notas</a></li>
         </ul>
         <div class="d-flex align-items-center gap-2">
           <span class="user-chip">
@@ -49,8 +50,8 @@
       <header class="container cert-head">
         <div>
           <span class="eyebrow">GESTIÓN ACADÉMICA</span>
-          <h1 class="fw-bold mt-2">Certificado de <span class="grad">calificaciones</span></h1>
-          <p class="lead mb-0">Selecciona estudiante y periodo para consultar y preparar su certificado.</p>
+          <h1 class="fw-bold mt-2" id="gradesHeading">Certificado de <span class="grad">calificaciones</span></h1>
+          <p class="lead mb-0" id="gradesDescription">Selecciona estudiante y periodo para consultar y preparar su certificado.</p>
         </div>
         <span class="demo-badge"><span aria-hidden="true">●</span> Datos de Neon</span>
       </header>
@@ -65,7 +66,7 @@
             <span class="step" aria-hidden="true">1</span>
           </div>
           <form id="certificateForm" class="row g-3 align-items-end">
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-6" id="studentField" hidden>
               <label class="form-label" for="studentSelect">Estudiante</label>
               <select class="form-select field" id="studentSelect" required>
                 <option value="">Selecciona un estudiante</option>
@@ -81,7 +82,7 @@
               </select>
             </div>
             <div class="col-6 col-md-3">
-              <button class="btn btn-zetta w-100" type="submit">Generar certificado</button>
+              <button class="btn btn-zetta w-100" id="consultGradesButton" type="submit">Generar certificado</button>
             </div>
           </form>
           <p class="cert-feedback" id="certificateFeedback" role="status" aria-live="polite"></p>
@@ -92,7 +93,7 @@
             <div>
               <span class="step" aria-hidden="true">2</span>
               <div>
-                <h2 class="h5 fw-bold mb-1">Vista previa</h2>
+                <h2 class="h5 fw-bold mb-1" id="certificateResultHeading">Vista previa</h2>
                 <p class="text-muted mb-0">Revisa los datos y usa imprimir para guardar una copia en PDF.</p>
               </div>
             </div>
@@ -118,11 +119,11 @@
               <p class="mb-0" id="certificatePeriod"></p>
             </div>
 
-            <p class="certificate-intro">
+            <p class="certificate-intro certificate-only">
               Se certifica, para fines informativos, que los siguientes datos corresponden al registro académico de:
             </p>
 
-            <dl class="student-details">
+            <dl class="student-details certificate-only">
               <div><dt>Estudiante</dt><dd id="certificateStudent"></dd></div>
               <div><dt>Documento</dt><dd id="certificateDocument"></dd></div>
               <div><dt>Curso</dt><dd id="certificateCourse"></dd></div>
@@ -135,12 +136,12 @@
                   <tr>
                     <th scope="col">Área / asignatura</th>
                     <th scope="col">Calificación final</th>
-                    <th scope="col">Nota necesaria en periodos pendientes</th>
-                    <th scope="col">Escala</th>
+                    <th class="certificate-only" scope="col">Nota necesaria en periodos pendientes</th>
+                    <th class="certificate-only" scope="col">Escala</th>
                   </tr>
                 </thead>
                 <tbody id="gradesBody"></tbody>
-                <tfoot>
+                <tfoot class="certificate-only">
                   <tr>
                     <th scope="row">Promedio general (promedio simple de áreas)</th>
                     <td id="overallAverage"></td>
@@ -151,17 +152,17 @@
               </table>
             </div>
 
-            <div class="certificate-footnote">
+            <div class="certificate-footnote certificate-only">
               <p id="gradeMethod" class="mb-1"></p>
               <p class="mb-0"><b>Folio de vista previa:</b> <span id="certificateFolio"></span></p>
             </div>
 
-            <footer class="certificate-signature">
+            <footer class="certificate-signature certificate-only">
               <div class="signature-line"></div>
               <b>Secretaría académica</b>
               <span>Firma de muestra · Sin validez oficial</span>
             </footer>
-            <p class="certificate-disclaimer mb-0">
+            <p class="certificate-disclaimer certificate-only mb-0">
               Vista previa basada en datos de Neon. No es un certificado oficial ni reemplaza los documentos emitidos por la institución.
             </p>
           </article>

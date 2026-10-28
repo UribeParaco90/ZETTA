@@ -224,6 +224,52 @@
   margin-top: 1.5rem;
 }
 
+.reference-search-control {
+  position: relative;
+}
+
+.reference-search-control input[type="search"] {
+  width: 100%;
+}
+
+.student-search-options {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  left: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 0.35rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 0.7rem;
+  background: #111827;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+}
+
+.student-search-option {
+  display: block;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: #e2e8f0;
+  text-align: left;
+}
+
+.student-search-option:hover,
+.student-search-option[aria-selected="true"] {
+  background: rgba(56, 189, 248, 0.14);
+  color: #bae6fd;
+}
+
+.student-search-empty {
+  margin: 0;
+  padding: 0.7rem 0.75rem;
+  color: #94a3b8;
+}
+
 .dialog-close {
   border: 0;
   background: none;

@@ -8,38 +8,71 @@
     <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/profile.css">
     <script src="js/profile.js" defer></script>
   </head>
-  <body class="login-page">
+  <body class="login-page profile-page">
     <header class="login-topbar">
       <a class="navbar-brand fw-bold grad" href="/dashboard.html">ZETTA</a>
       <a class="back-link" href="/dashboard.html">Volver al panel</a>
     </header>
-    <main class="login-layout">
-      <section class="login-card glass" aria-labelledby="profileTitle">
+    <main class="login-layout profile-layout">
+      <section class="login-card glass profile-card" aria-labelledby="profileTitle">
         <div class="login-heading">
           <p class="eyebrow mb-2">PORTAL ACADÉMICO</p>
           <h1 id="profileTitle" class="h2 fw-bold mb-2">Mi perfil</h1>
           <p class="text-muted mb-0" id="profileName"></p>
         </div>
-        <form id="studentProfile" class="login-form" hidden>
-          <div>
-            <label class="form-label" for="document">Documento</label>
-            <input class="form-control field" id="document" readonly>
+        <section id="studentAcademicSection" class="profile-section" aria-labelledby="academicTitle" hidden>
+          <div class="profile-section-heading">
+            <h2 id="academicTitle">Información académica</h2>
+            <p>Tu curso y dirección de grupo actual.</p>
           </div>
-          <div>
-            <label class="form-label" for="institutionEmail">Correo institucional</label>
-            <input class="form-control field" id="institutionEmail" type="email" maxlength="150" required>
+          <dl id="studentAcademicProfile" class="profile-academic-details">
+            <div><dt>Está cursando</dt><dd id="studentCourse"></dd></div>
+            <div><dt>Directora de grupo</dt><dd id="groupDirector"></dd></div>
+          </dl>
+        </section>
+        <section id="studentDataSection" class="profile-section" aria-labelledby="contactTitle" hidden>
+          <div class="profile-section-heading">
+            <h2 id="contactTitle">Datos personales</h2>
+            <p>El correo institucional es asignado por tu institución y no se puede modificar.</p>
           </div>
-          <div>
-            <label class="form-label" for="personalEmail">Correo personal</label>
-            <input class="form-control field" id="personalEmail" type="email" maxlength="150">
+          <form id="studentProfile" class="login-form profile-form">
+            <div>
+              <label class="form-label" for="document">Documento</label>
+              <input class="form-control field" id="document" readonly>
+            </div>
+            <div>
+              <label class="form-label" for="institutionEmail">Correo institucional</label>
+              <input class="form-control field" id="institutionEmail" type="email" maxlength="150" readonly>
+            </div>
+            <div class="profile-personal-email">
+              <label class="form-label" for="personalEmail">Correo personal</label>
+              <input class="form-control field" id="personalEmail" type="email" maxlength="150">
+            </div>
+            <p class="form-feedback profile-form-wide" id="studentFeedback" role="status" aria-live="polite"></p>
+            <button class="btn btn-zetta profile-form-wide" type="submit">Guardar correo personal</button>
+            <div class="profile-link-code profile-form-wide">
+              <button class="btn btn-ghost" id="newLinkCode" type="button">Generar código de vinculación</button>
+              <p class="form-feedback" id="linkCode" role="status" aria-live="polite"></p>
+            </div>
+          </form>
+        </section>
+        <section id="birthdaySection" class="profile-section" aria-labelledby="birthdayTitle" hidden>
+          <div class="profile-section-heading">
+            <h2 id="birthdayTitle">Fecha de cumpleaños</h2>
+            <p>Puedes agregarla o actualizarla cuando lo necesites.</p>
           </div>
-          <p class="form-feedback" id="studentFeedback" role="status" aria-live="polite"></p>
-          <button class="btn btn-zetta" type="submit">Guardar correo</button>
-          <button class="btn btn-ghost" id="newLinkCode" type="button">Generar código de vinculación</button>
-          <p class="form-feedback" id="linkCode" role="status" aria-live="polite"></p>
-        </form>
+          <form id="birthdayForm" class="login-form profile-form profile-birthday-form">
+            <div>
+              <label class="form-label" for="birthDate">Fecha de cumpleaños</label>
+              <input class="form-control field" id="birthDate" type="date">
+            </div>
+            <p class="form-feedback" id="birthdayFeedback" role="status" aria-live="polite"></p>
+            <button class="btn btn-zetta" type="submit">Guardar fecha</button>
+          </form>
+        </section>
         <form id="guardianLink" class="login-form" hidden>
           <div>
             <label class="form-label" for="linkCodeInput">Código de vinculación del estudiante</label>

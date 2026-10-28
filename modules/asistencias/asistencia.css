@@ -103,6 +103,92 @@ input[type="date"].field {
   height: auto;
 }
 
+.attendance-sheet-info {
+  margin-bottom: 20px;
+  padding: 20px;
+  color: var(--text-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse at top left, rgba(56, 189, 248, 0.12), transparent 58%),
+    var(--surface-glass);
+}
+
+.attendance-sheet-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.attendance-sheet-eyebrow {
+  margin: 0 0 3px;
+  color: var(--cyan);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.attendance-sheet-info h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.attendance-sheet-info dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.attendance-sheet-info dl > div {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.attendance-sheet-info dt {
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.attendance-sheet-info dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.attendance-print-button {
+  flex: none;
+}
+
+@media (max-width: 767.98px) {
+  .attendance-sheet-info dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .attendance-sheet-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .attendance-print-button {
+    width: 100%;
+  }
+}
+
 /* Tarjetas de resumen por estado. */
 .stat {
   color: var(--text-muted);
@@ -352,6 +438,10 @@ body {
 }
 
 @media (max-width: 575.98px) {
+  .attendance-sheet-info dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .table-card {
     padding: 12px;
   }
@@ -377,5 +467,113 @@ body {
   .estado {
     min-width: 42px;
     padding-inline: 9px;
+  }
+}
+
+@media print {
+  @page {
+    size: portrait;
+    margin: 12mm;
+  }
+
+  body {
+    display: block;
+    min-height: 0;
+    color: #111827 !important;
+    background: #fff !important;
+  }
+
+  body > * {
+    display: none !important;
+  }
+
+  body > .module,
+  #attendancePanels,
+  #panel-registro,
+  #panel-registro .table-responsive {
+    display: block !important;
+    width: 100%;
+    padding: 0;
+    overflow: visible;
+    color: #111827;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  #attendancePanels {
+    margin: 0;
+  }
+
+  #tabsAsistencia,
+  #panel-historial,
+  #panel-alertas,
+  .module > .block:not(#attendancePanels),
+  .module-head,
+  .cert-feedback,
+  .filters,
+  .island,
+  footer {
+    display: none !important;
+  }
+
+  #panel-registro {
+    display: block !important;
+    position: static;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  #panel-registro *,
+  #panel-registro .attendance-sheet-info {
+    visibility: visible;
+  }
+
+  #panel-registro .table-card,
+  #panel-registro .attendance-sheet-info {
+    padding: 0;
+    color: #111827;
+    border: 0;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  #panel-registro .attendance-sheet-info {
+    display: block !important;
+  }
+
+  #panel-registro .attendance-sheet-heading {
+    margin-bottom: 8mm;
+  }
+
+  #panel-registro .attendance-sheet-eyebrow {
+    color: #374151;
+  }
+
+  #panel-registro .attendance-sheet-info dl > div {
+    border-color: #9ca3af;
+    border-radius: 0;
+    background: #fff;
+  }
+
+  #panel-registro .legend,
+  #panel-registro .attendance-print-button,
+  #panel-registro .empty-row,
+  #panel-registro .student-document-heading,
+  #panel-registro .student-doc {
+    display: none !important;
+  }
+
+  #panel-registro .table-zetta {
+    --bs-table-color: #111827;
+    --bs-table-border-color: #9ca3af;
+    --bs-table-bg: #fff;
+    color: #111827;
+    background: #fff;
+  }
+
+  #panel-registro .table-zetta th,
+  #panel-registro .table-zetta td {
+    color: #111827;
+    border: 1px solid #9ca3af;
   }
 }

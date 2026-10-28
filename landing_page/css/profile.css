@@ -1,0 +1,156 @@
+.profile-page [hidden] {
+  display: none !important;
+}
+
+.profile-layout {
+  width: min(760px, calc(100% - 40px));
+  flex: 0 0 auto;
+  align-items: start;
+  margin: 0 auto;
+  padding: 28px 0 56px;
+}
+
+.profile-card {
+  justify-content: flex-start;
+  gap: 22px;
+}
+
+.profile-card .login-heading {
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.profile-card .login-heading .eyebrow {
+  color: var(--cyan);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.profile-section {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border-glass);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.profile-section-heading {
+  margin-bottom: 18px;
+}
+
+.profile-section-heading h2 {
+  margin: 0 0 5px;
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.profile-section-heading p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.profile-academic-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.profile-academic-details > div {
+  min-width: 0;
+  padding: 13px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.profile-academic-details dt {
+  margin-bottom: 5px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.profile-academic-details dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.profile-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 16px;
+}
+
+.profile-form > div {
+  min-width: 0;
+}
+
+.profile-form .field {
+  width: 100%;
+}
+
+.profile-form .form-feedback {
+  overflow-wrap: anywhere;
+}
+
+.profile-form-wide {
+  grid-column: 1 / -1;
+}
+
+.profile-link-code {
+  display: grid;
+  gap: 8px;
+}
+
+.profile-link-code .form-feedback {
+  margin-bottom: 0;
+}
+
+.profile-birthday-form {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.profile-birthday-form .form-feedback {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-bottom: 0;
+}
+
+@media (max-width: 575.98px) {
+  .profile-layout {
+    width: calc(100% - 24px);
+    padding: 18px 0 32px;
+  }
+
+  .profile-card {
+    gap: 16px;
+    padding: 20px 16px;
+  }
+
+  .profile-section {
+    padding: 16px 14px;
+  }
+
+  .profile-academic-details,
+  .profile-form,
+  .profile-birthday-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-form-wide,
+  .profile-birthday-form .form-feedback {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .profile-birthday-form .btn {
+    width: 100%;
+  }
+}

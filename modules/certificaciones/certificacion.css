@@ -146,6 +146,10 @@
   animation: result-arrive 0.35s ease both;
 }
 
+.student-grades .certificate-only {
+  display: none;
+}
+
 .result-toolbar {
   padding: 0 2px;
 }
@@ -321,6 +325,40 @@
 .grades-table tfoot td {
   color: #0f172a;
   font-weight: 750;
+}
+
+.student-records-page .grades-table {
+  --bs-table-color: #f1f5f9;
+  --bs-table-border-color: rgba(203, 213, 225, 0.28);
+  --bs-table-bg: transparent;
+  color: #f1f5f9;
+}
+
+.student-records-page .grades-table thead th {
+  padding: 14px 16px;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.48);
+  letter-spacing: 0.04em;
+}
+
+.student-records-page .grades-table tbody td,
+.student-records-page .grades-table tbody th {
+  padding: 16px;
+  color: #f8fafc;
+  font-size: 0.98rem;
+  border-bottom-color: rgba(203, 213, 225, 0.28);
+}
+
+.student-records-page .grades-table tbody tr > * {
+  background-color: rgba(255, 255, 255, 0.035);
+}
+
+.student-records-page .grades-table tbody tr:nth-child(even) > * {
+  background-color: rgba(255, 255, 255, 0.075);
+}
+
+.student-records-page .grades-table tbody tr:hover > * {
+  background-color: rgba(56, 189, 248, 0.12);
 }
 
 .certificate-footnote {

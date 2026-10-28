@@ -7,18 +7,26 @@
   };
 
   const studentForm = document.querySelector("#studentProfile");
+  const birthdayForm = document.querySelector("#birthdayForm");
   const guardianForm = document.querySelector("#guardianLink");
   const studentFeedback = document.querySelector("#studentFeedback");
+  const birthdayFeedback = document.querySelector("#birthdayFeedback");
   const guardianFeedback = document.querySelector("#guardianFeedback");
 
   const initialize = async () => {
     const [user, profile] = await Promise.all([api("/api/auth/me"), api("/api/perfil")]);
     document.querySelector("#profileName").textContent = user.name;
     if (user.role === "Estudiante") {
-      studentForm.hidden = false;
+      document.querySelector("#studentAcademicSection").hidden = false;
+      document.querySelector("#studentDataSection").hidden = false;
+      document.querySelector("#birthdaySection").hidden = false;
       document.querySelector("#document").value = profile.documento || "";
       document.querySelector("#institutionEmail").value = profile.email || "";
       document.querySelector("#personalEmail").value = profile.email_personal || "";
+      document.querySelector("#birthDate").value = profile.fecha_nacimiento || "";
+      document.querySelector("#birthDate").max = new Date().toISOString().slice(0, 10);
+      document.querySelector("#studentCourse").textContent = profile.curso || "Sin matrícula actual";
+      document.querySelector("#groupDirector").textContent = profile.directora_grupo || "Sin directora de grupo asignada";
     } else if (user.role === "Acudiente") {
       guardianForm.hidden = false;
     } else {
@@ -34,13 +42,26 @@
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: document.querySelector("#institutionEmail").value,
           email_personal: document.querySelector("#personalEmail").value
         })
       });
-      studentFeedback.textContent = "Datos de correo actualizados.";
+      studentFeedback.textContent = "Correo personal actualizado.";
     } catch (error) {
       studentFeedback.textContent = error.message;
+    }
+  });
+
+  birthdayForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      await api("/api/perfil/fecha-cumpleanos", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fecha_nacimiento: document.querySelector("#birthDate").value || null })
+      });
+      birthdayFeedback.textContent = "Fecha de cumpleaños actualizada.";
+    } catch (error) {
+      birthdayFeedback.textContent = error.message;
     }
   });
 

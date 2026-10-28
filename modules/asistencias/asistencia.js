@@ -28,10 +28,19 @@
   const updateSubjects = () => {
     const courseId = courseSelect.value;
     subjectSelect.replaceChildren(new Option("Selecciona una asignatura", ""));
-    subjects.filter((subject) => !courseId || subject.curso_id === courseId).forEach((subject) => {
+    subjectSelect.disabled = !courseId;
+    subjects.filter((subject) => courseId && subject.curso_id === courseId).forEach((subject) => {
       const course = courses.find((item) => item.id === subject.curso_id);
       subjectSelect.add(new Option(`${subject.nombre}${course ? ` · ${course.nombre}` : ""}`, subject.id));
     });
+  };
+
+  const clearRoster = () => {
+    registerBody.replaceChildren();
+    records = [];
+    document.querySelector("#attendanceSheetInfo").hidden = true;
+    document.querySelector("#btnGuardar").disabled = true;
+    updateStats();
   };
 
   const updateStats = () => {
@@ -44,6 +53,14 @@
     document.querySelector("#totAusente").textContent = totals.Ausente;
     document.querySelector("#totExcusado").textContent = totals.Excusado;
     document.querySelector("#totRetardo").textContent = totals.Retardo;
+  };
+
+  const markAllAs = (status) => {
+    registerBody.querySelectorAll("tr[data-matricula-id]").forEach((row) => {
+      const radio = [...row.querySelectorAll("input")].find((input) => input.value === status);
+      if (radio) radio.checked = true;
+    });
+    updateStats();
   };
 
   const renderRoster = (items) => {
@@ -62,6 +79,10 @@
         input.name = `estado-${suffix}`;
         input.id = `estado-${status.toLowerCase()}-${suffix}`;
         input.checked = record.estado === status;
+        if (user.role === "Profesor" && ["Excusado", "Retardo"].includes(status)) {
+          input.hidden = true;
+          input.nextElementSibling.hidden = true;
+        }
         input.addEventListener("change", updateStats);
         input.nextElementSibling.htmlFor = input.id;
       });
@@ -72,14 +93,26 @@
   };
 
   const loadList = async () => {
-    if (!subjectSelect.value || !dateInput.value) {
-      showFeedback("Selecciona asignatura y fecha para cargar la lista.");
+    if (!courseSelect.value || !subjectSelect.value || !dateInput.value) {
+      showFeedback("Selecciona grupo, asignatura y fecha para cargar la lista.");
       return;
     }
     try {
-      const query = new URLSearchParams({ asignaturaId: subjectSelect.value, fecha: dateInput.value });
+      const query = new URLSearchParams({
+        cursoId: courseSelect.value,
+        asignaturaId: subjectSelect.value,
+        fecha: dateInput.value
+      });
       const result = await api(`/api/academico/lista?${query}`);
       renderRoster(result.records);
+      document.querySelector("#sheetCourse").textContent =
+        courses.find((course) => course.id === courseSelect.value)?.nombre || "";
+      document.querySelector("#sheetSubject").textContent =
+        subjects.find((subject) => subject.id === subjectSelect.value)?.nombre || "";
+      document.querySelector("#sheetDate").textContent =
+        new Intl.DateTimeFormat("es-CO", { dateStyle: "long", timeZone: "UTC" })
+          .format(new Date(`${dateInput.value}T00:00:00.000Z`));
+      document.querySelector("#attendanceSheetInfo").hidden = false;
       showFeedback(`${result.records.length} estudiantes cargados.`, true);
     } catch (error) {
       showFeedback(error.message);
@@ -90,6 +123,7 @@
     const query = new URLSearchParams();
     if (document.querySelector("#histDesde").value) query.set("desde", document.querySelector("#histDesde").value);
     if (document.querySelector("#histHasta").value) query.set("hasta", document.querySelector("#histHasta").value);
+    if (document.querySelector("#histCurso").value) query.set("cursoId", document.querySelector("#histCurso").value);
     try {
       const result = await api(`/api/academico/asistencias?${query}`);
       const search = document.querySelector("#histEstudiante").value.trim().toLocaleLowerCase();
@@ -139,6 +173,7 @@
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
+                cursoId: record.curso_id,
                 asignaturaId: record.asignatura_id,
                 fecha: record.fecha,
                 records: [{ matriculaId: record.matricula_id, estado: "Excusado" }]
@@ -160,13 +195,8 @@
     }
   };
 
-  document.querySelector("#btnMarcarTodos").addEventListener("click", () => {
-    registerBody.querySelectorAll("tr[data-matricula-id]").forEach((row) => {
-      const present = [...row.querySelectorAll("input")].find((input) => input.value === "Presente");
-      if (present) present.checked = true;
-    });
-    updateStats();
-  });
+  document.querySelector("#btnMarcarTodos").addEventListener("click", () => markAllAs("Presente"));
+  document.querySelector("#btnMarcarAusentes").addEventListener("click", () => markAllAs("Ausente"));
 
   document.querySelector("#btnCargar").addEventListener("click", loadList);
   document.querySelector("#btnGuardar").addEventListener("click", async () => {
@@ -183,6 +213,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          cursoId: courseSelect.value,
           asignaturaId: subjectSelect.value,
           fecha: dateInput.value,
           records: selectedRecords
@@ -196,14 +227,15 @@
   });
 
   courseSelect.addEventListener("change", updateSubjects);
-  subjectSelect.addEventListener("change", () => {
-    registerBody.replaceChildren();
-    document.querySelector("#btnGuardar").disabled = true;
-  });
+  courseSelect.addEventListener("change", clearRoster);
+  subjectSelect.addEventListener("change", clearRoster);
+  dateInput.addEventListener("change", clearRoster);
+  document.querySelector("#btnImprimir").addEventListener("click", () => window.print());
   ["#histEstudiante", "#histDesde", "#histHasta"].forEach((selector) => {
     document.querySelector(selector).addEventListener("input", loadHistory);
     document.querySelector(selector).addEventListener("change", loadHistory);
   });
+  document.querySelector("#histCurso").addEventListener("change", loadHistory);
 
   const initialize = async () => {
     user = await api("/api/auth/me");
@@ -212,13 +244,22 @@
       window.location.replace("/dashboard.html");
       return;
     }
+    document.querySelector("#certificationModuleLink").hidden = user.role !== "Admin";
+    document.querySelector("#btnMarcarAusentes").hidden = user.role !== "Profesor";
     const [courseData, subjectData] = await Promise.all([
       api("/api/cursos?limit=200"),
       api("/api/asignaturas?limit=200")
     ]);
-    courses = courseData.records;
     subjects = subjectData.records;
-    courses.forEach((course) => courseSelect.add(new Option(course.nombre, course.id)));
+    courses = courseData.records.filter((course) => (
+      user.role !== "Profesor" || subjects.some((subject) => subject.curso_id === course.id)
+    ));
+    courses
+      .sort((left, right) => left.nombre.localeCompare(right.nombre, "es"))
+      .forEach((course) => {
+        courseSelect.add(new Option(course.nombre, course.id));
+        document.querySelector("#histCurso").add(new Option(course.nombre, course.id));
+      });
     updateSubjects();
     dateInput.value = new Date().toISOString().slice(0, 10);
     document.querySelector("#logoutButton")?.addEventListener("click", async () => {
@@ -226,6 +267,7 @@
       window.location.assign("../../landing_page/login.html");
     });
     await loadHistory();
+    if (!courses.length) showFeedback("No tienes grupos con asignaturas asignadas.");
   };
 
   initialize().catch((error) => {

@@ -43,7 +43,7 @@ const entities = {
       })
     ],
     display: ["documento", "nombre", "apellido", "email", "email_personal", "rol", "primer_ingreso"],
-    readRoles: ["Admin", "SuperAdmin", "Profesor"],
+    readRoles: ["Admin", "SuperAdmin"],
     writeRoles: ["Admin"]
   },
   cursos: {
@@ -56,7 +56,7 @@ const entities = {
       field("aula", "Aula", "text", { maxLength: 80 }),
       field("director_grupo_id", "Director de grupo", "reference", { reference: "usuarios" })
     ],
-    display: ["nombre", "periodo_lectivo"],
+    display: ["nombre", "periodo_lectivo", "director_grupo_id"],
     readRoles: ["Admin", "Profesor", "Estudiante", "Acudiente"],
     writeRoles: ["Admin"]
   },
@@ -219,26 +219,49 @@ const entities = {
 const getEntity = (key) => entities[key] || null;
 const publicEntities = (role) => Object.entries(entities)
   .filter(([, entity]) => entity.readRoles.includes(role))
-  .map(([key, entity]) => ({
-    key,
-    label: entity.label,
-    fields: entity.fields
-      .filter((item) => item.key !== "password_hash")
-      .map((item) => key === "usuarios" && item.key === "rol"
-        ? {
-          ...item,
-          options: role === "SuperAdmin"
-            ? item.options.filter((option) => option === "Admin")
-            : item.options.filter((option) => ["Profesor", "Estudiante"].includes(option))
-        }
-        : key === "instituciones" && role === "Admin" && ["nit_codigo", "plan_suscripcion"].includes(item.key)
-          ? { ...item, readOnly: true }
-        : item),
-    display: entity.display,
-    canWrite: entity.writeRoles.includes(role),
-    canCreate: (entity.writeRoles.includes(role) && !(key === "instituciones" && role === "Admin"))
-      || (key === "usuarios" && role === "SuperAdmin"),
-    canManageActivation: key === "usuarios" && ["Admin", "SuperAdmin"].includes(role)
-  }));
+  .map(([key, entity]) => {
+    const displayFields = role === "Profesor" && key === "cursos"
+      ? [
+        field("nombre", "Curso"),
+        field("periodo_lectivo", "Año lectivo"),
+        field("rol_docente", "Rol en el curso")
+      ]
+      : role === "Profesor" && key === "asignaturas"
+        ? [field("nombre", "Asignatura"), field("curso_nombre", "Curso")]
+        : role === "Profesor" && key === "matriculas"
+          ? [field("estudiante_nombre", "Estudiante"), field("curso_nombre", "Curso")]
+          : role === "Profesor" && key === "calificaciones"
+            ? [
+              field("asignatura_nombre", "Asignatura"),
+              field("periodo", "Periodo"),
+              field("nota", "Nota"),
+              field("porcentaje", "Porcentaje")
+            ]
+            : entity.fields.filter((item) => entity.display.includes(item.key));
+    return {
+      key,
+      label: entity.label,
+      fields: entity.fields
+        .filter((item) => item.key !== "password_hash")
+        .map((item) => key === "usuarios" && item.key === "rol"
+          ? {
+            ...item,
+            options: role === "SuperAdmin"
+              ? item.options.filter((option) => option === "Admin")
+              : item.options.filter((option) => ["Profesor", "Estudiante"].includes(option))
+          }
+          : key === "instituciones" && role === "Admin" && ["nit_codigo", "plan_suscripcion"].includes(item.key)
+            ? { ...item, readOnly: true }
+          : item),
+      display: role === "Profesor" && ["cursos", "asignaturas", "matriculas", "calificaciones"].includes(key)
+        ? displayFields.map((item) => item.key)
+        : entity.display,
+      displayFields,
+      canWrite: entity.writeRoles.includes(role),
+      canCreate: (entity.writeRoles.includes(role) && !(key === "instituciones" && role === "Admin"))
+        || (key === "usuarios" && role === "SuperAdmin"),
+      canManageActivation: key === "usuarios" && ["Admin", "SuperAdmin"].includes(role)
+    };
+  });
 
 module.exports = { entities, getEntity, publicEntities };

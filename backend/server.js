@@ -162,8 +162,12 @@ const institutionQueryForRole = (user, userAlias = "u") => {
     return {
       sql: `EXISTS (
         SELECT 1 FROM matriculas m
-        JOIN asignaturas a ON a.curso_id = m.curso_id
-        WHERE m.estudiante_id = ${userAlias}.id AND a.profesor_id = $1
+        JOIN cursos c ON c.id = m.curso_id
+        WHERE m.estudiante_id = ${userAlias}.id
+          AND (
+            c.director_grupo_id = $1
+            OR EXISTS (SELECT 1 FROM asignaturas a WHERE a.curso_id = c.id AND a.profesor_id = $1)
+          )
       )`,
       values: [user.id]
     };
@@ -266,26 +270,28 @@ app.get("/api/academico/lista", requireAuth, async (request, response, next) => 
   if (!["Admin", "Profesor"].includes(request.user.role)) {
     return sendError(response, 403, "Solo el administrador o el profesor asignado pueden tomar asistencia.");
   }
+  const courseId = request.query.cursoId;
   const subjectId = request.query.asignaturaId;
   const date = request.query.fecha;
-  if (!uuidPattern.test(subjectId || "") || typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return sendError(response, 400, "Selecciona una asignatura y fecha válidas.");
+  if (!uuidPattern.test(courseId || "") || !uuidPattern.test(subjectId || "")
+    || typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return sendError(response, 400, "Selecciona un grupo, una asignatura y una fecha válidos.");
   }
   try {
     const scope = request.user.role === "Admin"
-      ? { sql: "c.institucion_id = $3", values: [request.user.institutionId] }
-      : { sql: "a.profesor_id = $3", values: [request.user.id] };
+      ? { sql: "c.institucion_id = $4", values: [request.user.institutionId] }
+      : { sql: "a.profesor_id = $4", values: [request.user.id] };
     const result = await getPool().query(
       `SELECT m.id AS matricula_id, u.id AS estudiante_id, u.nombre, u.apellido,
-              u.documento, x.estado
+              u.documento, x.estado, c.nombre AS curso, a.nombre AS asignatura
        FROM asignaturas a
        JOIN cursos c ON c.id = a.curso_id
        JOIN matriculas m ON m.curso_id = c.id
        JOIN usuarios u ON u.id = m.estudiante_id AND u.rol = 'Estudiante'
-       LEFT JOIN asistencia x ON x.matricula_id = m.id AND x.asignatura_id = a.id AND x.fecha = $2
-       WHERE a.id = $1 AND ${scope.sql}
+       LEFT JOIN asistencia x ON x.matricula_id = m.id AND x.asignatura_id = a.id AND x.fecha = $3
+       WHERE c.id = $1 AND a.id = $2 AND ${scope.sql}
        ORDER BY u.apellido, u.nombre`,
-      [subjectId, date, ...scope.values]
+      [courseId, subjectId, date, ...scope.values]
     );
     response.json({ records: result.rows });
   } catch (error) {
@@ -297,9 +303,10 @@ app.get("/api/academico/asistencias", requireAuth, async (request, response, nex
   if (!["Admin", "Profesor"].includes(request.user.role)) {
     return sendError(response, 403, "Este perfil no puede consultar registros globales de asistencia.");
   }
-  const { desde, hasta } = request.query;
+  const { desde, hasta, cursoId } = request.query;
   const validDate = (value) => value === undefined || /^\d{4}-\d{2}-\d{2}$/.test(value);
-  if (!validDate(desde) || !validDate(hasta)) {
+  if (!validDate(desde) || !validDate(hasta)
+    || (cursoId !== undefined && !uuidPattern.test(cursoId))) {
     return sendError(response, 400, "El rango de fechas no es válido.");
   }
   const scope = request.user.role === "Admin"
@@ -307,7 +314,7 @@ app.get("/api/academico/asistencias", requireAuth, async (request, response, nex
     : "a.profesor_id = $3";
   try {
     const result = await getPool().query(
-      `SELECT x.id, x.fecha, x.estado, x.asignatura_id, m.id AS matricula_id,
+      `SELECT x.id, x.fecha, x.estado, x.asignatura_id, c.id AS curso_id, m.id AS matricula_id,
               u.nombre AS estudiante_nombre, u.apellido AS estudiante_apellido,
               u.documento, a.nombre AS asignatura,
               g.nombre AS acudiente_nombre, g.apellido AS acudiente_apellido
@@ -320,8 +327,11 @@ app.get("/api/academico/asistencias", requireAuth, async (request, response, nex
        WHERE ${scope}
          AND ($1::date IS NULL OR x.fecha >= $1::date)
          AND ($2::date IS NULL OR x.fecha <= $2::date)
+         AND ($4::uuid IS NULL OR c.id = $4::uuid)
        ORDER BY x.fecha DESC, u.apellido, u.nombre LIMIT 1000`,
-      [desde || null, hasta || null, request.user.role === "Admin" ? request.user.institutionId : request.user.id]
+      [desde || null, hasta || null,
+        request.user.role === "Admin" ? request.user.institutionId : request.user.id,
+        cursoId || null]
     );
     response.json({ records: result.rows });
   } catch (error) {
@@ -330,11 +340,11 @@ app.get("/api/academico/asistencias", requireAuth, async (request, response, nex
 });
 
 app.post("/api/academico/asistencia", requireAuth, async (request, response, next) => {
-  const { asignaturaId, fecha, records } = request.body ?? {};
+  const { cursoId, asignaturaId, fecha, records } = request.body ?? {};
   if (!["Admin", "Profesor"].includes(request.user.role)) {
     return sendError(response, 403, "Solo el administrador o el profesor asignado pueden guardar asistencia.");
   }
-  if (!uuidPattern.test(asignaturaId || "") || typeof fecha !== "string"
+  if (!uuidPattern.test(cursoId || "") || !uuidPattern.test(asignaturaId || "") || typeof fecha !== "string"
     || !/^\d{4}-\d{2}-\d{2}$/.test(fecha) || !Array.isArray(records)
     || records.length < 1 || records.length > 200) {
     return sendError(response, 400, "Los datos de asistencia no son válidos.");
@@ -352,10 +362,10 @@ app.post("/api/academico/asistencia", requireAuth, async (request, response, nex
         `INSERT INTO asistencia (matricula_id, asignatura_id, fecha, estado)
          SELECT m.id, a.id, $3, $4
          FROM matriculas m
-         JOIN asignaturas a ON a.id = $2 AND a.curso_id = m.curso_id
+         JOIN asignaturas a ON a.id = $2 AND a.curso_id = m.curso_id AND a.curso_id = $5
          JOIN cursos c ON c.id = a.curso_id
          WHERE m.id = $1 AND ${
-           request.user.role === "Admin" ? "c.institucion_id = $5" : "a.profesor_id = $5"
+           request.user.role === "Admin" ? "c.institucion_id = $6" : "a.profesor_id = $6"
          }
          ON CONFLICT (matricula_id, asignatura_id, fecha)
          DO UPDATE SET estado = EXCLUDED.estado
@@ -365,6 +375,7 @@ app.post("/api/academico/asistencia", requireAuth, async (request, response, nex
           asignaturaId,
           fecha,
           record.estado,
+          cursoId,
           request.user.role === "Admin" ? request.user.institutionId : request.user.id
         ]
       );
@@ -811,17 +822,58 @@ app.put("/api/academico/planilla", async (request, response, next) => {
 app.get("/api/perfil", async (request, response, next) => {
   try {
     const result = await getPool().query(
-      `SELECT u.documento, u.email, u.email_personal, u.primer_ingreso,
-              c.nombre AS curso
+      `SELECT u.documento, u.email, u.email_personal, u.fecha_nacimiento,
+              u.primer_ingreso, c.nombre AS curso,
+              concat_ws(' ', d.nombre, d.apellido) AS directora_grupo
        FROM usuarios u
        LEFT JOIN matriculas m ON m.estudiante_id = u.id
        LEFT JOIN cursos c ON c.id = m.curso_id
+       LEFT JOIN usuarios d ON d.id = c.director_grupo_id
        WHERE u.id = $1
        ORDER BY c.periodo_lectivo DESC NULLS LAST
        LIMIT 1`,
       [request.user.id]
     );
     response.json(result.rows[0] || {});
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/academico/mi-asistencia", async (request, response, next) => {
+  if (request.user.role !== "Estudiante") {
+    return sendError(response, 403, "Solo el estudiante puede consultar su asistencia.");
+  }
+  try {
+    const result = await getPool().query(
+      `SELECT a.nombre AS asignatura, x.estado, to_char(x.fecha, 'YYYY-MM-DD') AS fecha
+       FROM asistencia x
+       JOIN matriculas m ON m.id = x.matricula_id
+       JOIN asignaturas a ON a.id = x.asignatura_id AND a.curso_id = m.curso_id
+       WHERE m.estudiante_id = $1
+       ORDER BY x.fecha DESC, a.nombre`,
+      [request.user.id]
+    );
+    response.json({ records: result.rows });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/academico/mi-observador", async (request, response, next) => {
+  if (request.user.role !== "Estudiante") {
+    return sendError(response, 403, "Solo el estudiante puede consultar su observador.");
+  }
+  try {
+    const result = await getPool().query(
+      `SELECT o.descripcion, concat_ws(' ', p.nombre, p.apellido) AS profesor, o.creado_en AS fecha
+       FROM observaciones o
+       JOIN usuarios p ON p.id = o.profesor_id
+       WHERE o.estudiante_id = $1
+       ORDER BY o.creado_en DESC`,
+      [request.user.id]
+    );
+    response.json({ records: result.rows });
   } catch (error) {
     next(error);
   }
@@ -1296,17 +1348,20 @@ app.post("/api/instituciones", async (request, response, next) => {
 
 app.patch("/api/perfil/correo", async (request, response, next) => {
   if (request.user.role !== "Estudiante") {
-    return sendError(response, 403, "Solo un estudiante puede editar su correo institucional.");
+    return sendError(response, 403, "Solo un estudiante puede editar su correo personal.");
   }
-  const { email, email_personal: personalEmail } = request.body ?? {};
-  if (!normalizedEmail(email) || (personalEmail && !normalizedEmail(personalEmail))) {
-    return sendError(response, 400, "Ingresa correos electrónicos válidos.");
+  if (Object.hasOwn(request.body ?? {}, "email")) {
+    return sendError(response, 400, "El correo institucional no se puede modificar.");
+  }
+  const { email_personal: personalEmail } = request.body ?? {};
+  if (personalEmail && !normalizedEmail(personalEmail)) {
+    return sendError(response, 400, "Ingresa un correo personal válido.");
   }
   try {
     const result = await getPool().query(
-      `UPDATE usuarios SET email = lower($2), email_personal = $3
-       WHERE id = $1 AND rol = 'Estudiante' RETURNING email, email_personal`,
-      [request.user.id, email.trim(), personalEmail ? personalEmail.trim().toLowerCase() : null]
+      `UPDATE usuarios SET email_personal = $2
+       WHERE id = $1 AND rol = 'Estudiante' RETURNING email_personal`,
+      [request.user.id, personalEmail ? personalEmail.trim().toLowerCase() : null]
     );
     await logAudit(getPool(), {
       institutionId: request.user.institutionId,
@@ -1314,12 +1369,45 @@ app.patch("/api/perfil/correo", async (request, response, next) => {
       action: "update",
       entity: "usuarios",
       entityId: request.user.id,
-      changes: {
-        email: result.rows[0]?.email,
-        email_personal: result.rows[0]?.email_personal
-      }
+      changes: { email_personal: result.rows[0]?.email_personal }
     });
-    response.json({ email: result.rows[0]?.email });
+    response.json({ email_personal: result.rows[0]?.email_personal });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.patch("/api/perfil/fecha-cumpleanos", async (request, response, next) => {
+  if (request.user.role !== "Estudiante") {
+    return sendError(response, 403, "Solo un estudiante puede editar su fecha de cumpleaños.");
+  }
+  const input = request.body?.fecha_nacimiento;
+  const birthDate = input === "" || input === null ? null : input;
+  if (birthDate !== null) {
+    if (typeof birthDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
+      return sendError(response, 400, "Ingresa una fecha de cumpleaños válida.");
+    }
+    const parsedDate = new Date(`${birthDate}T00:00:00.000Z`);
+    if (Number.isNaN(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== birthDate
+      || birthDate > new Date().toISOString().slice(0, 10)) {
+      return sendError(response, 400, "La fecha de cumpleaños no puede ser futura y debe ser válida.");
+    }
+  }
+  try {
+    const result = await getPool().query(
+      `UPDATE usuarios SET fecha_nacimiento = $2
+       WHERE id = $1 AND rol = 'Estudiante' RETURNING fecha_nacimiento`,
+      [request.user.id, birthDate]
+    );
+    await logAudit(getPool(), {
+      institutionId: request.user.institutionId,
+      userId: request.user.id,
+      action: "update",
+      entity: "usuarios",
+      entityId: request.user.id,
+      changes: { fecha_nacimiento: result.rows[0]?.fecha_nacimiento }
+    });
+    response.json({ fecha_nacimiento: result.rows[0]?.fecha_nacimiento });
   } catch (error) {
     next(error);
   }
@@ -1437,7 +1525,10 @@ const scopeFor = (entityKey, user) => {
   const courseScope = (courseAlias) => {
     if (user.role === "Admin") return `${courseAlias}.institucion_id = $1`;
     if (user.role === "Profesor") {
-      return `EXISTS (SELECT 1 FROM asignaturas sa WHERE sa.curso_id = ${courseAlias}.id AND sa.profesor_id = $1)`;
+      return `(${courseAlias}.director_grupo_id = $1 OR EXISTS (
+        SELECT 1 FROM asignaturas sa
+        WHERE sa.curso_id = ${courseAlias}.id AND sa.profesor_id = $1
+      ))`;
     }
     if (user.role === "Estudiante") {
       return `EXISTS (SELECT 1 FROM matriculas sm WHERE sm.curso_id = ${courseAlias}.id AND sm.estudiante_id = $1)`;
@@ -1457,16 +1548,6 @@ const scopeFor = (entityKey, user) => {
     case "usuarios":
       if (user.role === "Admin") return { sql: "t.institucion_id = $1", values: [institutionId] };
       if (user.role === "SuperAdmin") return { sql: "TRUE", values: [] };
-      if (user.role === "Profesor") {
-        return {
-          sql: `t.id = $1 OR (t.rol = 'Estudiante' AND EXISTS (
-            SELECT 1 FROM matriculas m
-            JOIN asignaturas a ON a.curso_id = m.curso_id
-            WHERE m.estudiante_id = t.id AND a.profesor_id = $1
-          ))`,
-          values: [userId]
-        };
-      }
       return { sql: "FALSE", values: [] };
     case "cursos":
       return { sql: courseScope("t"), values: [user.role === "Admin" ? institutionId : userId] };
@@ -1505,7 +1586,10 @@ const scopeFor = (entityKey, user) => {
       }
       if (user.role === "Profesor") {
         return {
-          sql: "EXISTS (SELECT 1 FROM asignaturas sa WHERE sa.curso_id = t.curso_id AND sa.profesor_id = $1)",
+          sql: `(
+            EXISTS (SELECT 1 FROM asignaturas sa WHERE sa.curso_id = t.curso_id AND sa.profesor_id = $1)
+            OR EXISTS (SELECT 1 FROM cursos sc WHERE sc.id = t.curso_id AND sc.director_grupo_id = $1)
+          )`,
           values: [userId]
         };
       }
@@ -1930,8 +2014,11 @@ const validateWriteScope = async (entityKey, values, user, recordId = null) => {
     const result = await getPool().query(
       `SELECT 1 FROM cursos c
        JOIN usuarios u ON u.id = $2 AND u.institucion_id = c.institucion_id AND u.rol = 'Estudiante'
-       JOIN asignaturas a ON a.curso_id = c.id AND a.profesor_id = $3
-       WHERE c.id = $1`,
+       JOIN matriculas m ON m.curso_id = c.id AND m.estudiante_id = u.id
+       WHERE c.id = $1 AND (
+         c.director_grupo_id = $3
+         OR EXISTS (SELECT 1 FROM asignaturas a WHERE a.curso_id = c.id AND a.profesor_id = $3)
+       )`,
       [values.curso_id, values.estudiante_id, user.id]
     );
     return result.rowCount > 0;
@@ -1968,11 +2055,41 @@ app.get("/api/:entity", async (request, response, next) => {
   const scope = scopeFor(request.params.entity, request.user);
   const columns = ["id", ...entity.fields.filter((item) => !item.writeOnly).map((item) => item.key)];
   try {
-    const result = await getPool().query(
-      `SELECT ${columns.map(safeColumn).join(", ")} FROM "${entity.table}" AS t
-       WHERE ${scope.sql} ORDER BY t."id" LIMIT $${scope.values.length + 1}`,
-      [...scope.values, limit]
-    );
+    const queryValues = [...scope.values, limit];
+    const limitParameter = `$${queryValues.length}`;
+    let query;
+    if (request.user.role === "Profesor" && request.params.entity === "cursos") {
+      query = `SELECT t.id, t.nombre, t.periodo_lectivo,
+                      CASE WHEN t.director_grupo_id = $1
+                        THEN 'Director de grupo' ELSE 'Docente por asignatura' END AS rol_docente
+               FROM cursos t WHERE ${scope.sql}
+               ORDER BY t.periodo_lectivo DESC, t.nombre LIMIT ${limitParameter}`;
+    } else if (request.user.role === "Profesor" && request.params.entity === "asignaturas") {
+      query = `SELECT t.id, t.nombre, t.curso_id, c.nombre AS curso_nombre
+               FROM asignaturas t JOIN cursos c ON c.id = t.curso_id
+               WHERE ${scope.sql}
+               ORDER BY c.periodo_lectivo DESC, c.nombre, t.nombre LIMIT ${limitParameter}`;
+    } else if (["Admin", "Profesor"].includes(request.user.role) && request.params.entity === "matriculas") {
+      query = `SELECT t.id, t.estudiante_id, t.curso_id,
+                      t.acudiente_id,
+                      concat_ws(' ', u.nombre, u.apellido) AS estudiante_nombre,
+                      c.nombre AS curso_nombre
+               FROM matriculas t
+               JOIN usuarios u ON u.id = t.estudiante_id AND u.rol = 'Estudiante'
+               JOIN cursos c ON c.id = t.curso_id
+               WHERE ${scope.sql}
+               ORDER BY c.nombre, u.apellido, u.nombre LIMIT ${limitParameter}`;
+    } else if (request.user.role === "Profesor" && request.params.entity === "calificaciones") {
+      query = `SELECT t.id, t.asignatura_id, t.periodo, t.nota, t.porcentaje,
+                      a.nombre AS asignatura_nombre
+               FROM calificaciones t JOIN asignaturas a ON a.id = t.asignatura_id
+               WHERE ${scope.sql}
+               ORDER BY a.nombre, t.periodo LIMIT ${limitParameter}`;
+    } else {
+      query = `SELECT ${columns.map(safeColumn).join(", ")} FROM "${entity.table}" AS t
+               WHERE ${scope.sql} ORDER BY t."id" LIMIT ${limitParameter}`;
+    }
+    const result = await getPool().query(query, queryValues);
     response.json({ records: result.rows, limit });
   } catch (error) {
     next(error);
@@ -2180,6 +2297,10 @@ app.delete("/api/:entity/:id", async (request, response, next) => {
   }
 });
 
+app.use("/api", (request, response) => {
+  sendError(response, 404, "La ruta solicitada de la API no existe.");
+});
+
 app.get("/", (request, response) => response.redirect("/index.html"));
 app.get("/dashboard.html", requirePageRoles(validRoles), (request, response) => {
   response.sendFile(path.join(landingPage, "dashboard.html"));
@@ -2198,6 +2319,9 @@ app.get("/planilla.html", requirePageRoles(["Admin", "Profesor"]), (request, res
 });
 app.get("/modules/certificaciones/certificado-calificaciones.html", requirePageRoles(["Admin", "Estudiante", "Acudiente"]), (request, response) => {
   response.sendFile(path.join(root, "modules", "certificaciones", "certificado-calificaciones.html"));
+});
+app.get("/modules/estudiante/seguimiento.html", requirePageRoles(["Estudiante"]), (request, response) => {
+  response.sendFile(path.join(root, "modules", "estudiante", "seguimiento.html"));
 });
 
 app.use("/modules", express.static(path.join(root, "modules")));

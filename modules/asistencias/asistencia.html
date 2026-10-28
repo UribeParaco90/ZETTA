@@ -13,9 +13,9 @@
     <!-- Se reutiliza la identidad visual de la landing. -->
     <link rel="stylesheet" href="/css/styles.css">
     <!-- Estilos propios del módulo de asistencia. -->
-    <link rel="stylesheet" href="asistencia.css">
+    <link rel="stylesheet" href="asistencia.css?v=attendance-sheet-4">
     <script src="/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
-    <script src="asistencia.js" defer></script>
+    <script src="asistencia.js?v=attendance-sheet-3" defer></script>
   </head>
   <body>
     <!-- Barra isla flotante: menú de módulos. -->
@@ -36,7 +36,7 @@
         <ul class="navbar-nav mx-auto">
           <li class="nav-item"><a class="nav-link" href="/index.html#modulos">Módulos</a></li>
           <li class="nav-item"><a class="nav-link active" href="asistencia.html" aria-current="page">Asistencia</a></li>
-          <li class="nav-item"><a class="nav-link" href="../certificaciones/certificado-calificaciones.html">Certificaciones</a></li>
+          <li class="nav-item"><a class="nav-link" id="certificationModuleLink" hidden href="../certificaciones/certificado-calificaciones.html">Certificaciones</a></li>
         </ul>
         <div class="d-flex align-items-center gap-2">
           <span class="user-chip" id="usuarioActual">
@@ -54,10 +54,11 @@
         <div class="row align-items-end g-3">
           <div class="col-lg-8">
             <h1 class="fw-bold">Control de <span class="grad">asistencia</span></h1>
-            <p class="lead mb-0">Toma lista por asignatura y revisa las inasistencias.</p>
+            <p class="lead mb-0">Selecciona un grupo y una de tus asignaturas para tomar la asistencia.</p>
           </div>
-          <div class="col-lg-4 d-flex justify-content-lg-end gap-2">
+          <div class="col-lg-4 d-flex flex-wrap justify-content-lg-end gap-2">
             <button class="btn btn-ghost px-4" type="button" id="btnMarcarTodos">Marcar todos presentes</button>
+            <button class="btn btn-ghost px-4" type="button" id="btnMarcarAusentes">Marcar todos ausentes</button>
             <button class="btn btn-zetta px-4" type="button" id="btnGuardar">Guardar asistencia</button>
           </div>
         </div>
@@ -69,14 +70,14 @@
         <div class="glass filters">
           <div class="row g-3 align-items-end">
             <div class="col-6 col-lg-4">
-              <label class="form-label" for="filtroCurso">Curso</label>
+              <label class="form-label" for="filtroCurso">Grupo</label>
               <select class="form-select field" id="filtroCurso">
-                <option value="" selected>Selecciona un curso</option>
+                <option value="" selected>Selecciona un grupo</option>
               </select>
             </div>
             <div class="col-6 col-lg-4">
               <label class="form-label" for="filtroAsignatura">Asignatura</label>
-              <select class="form-select field" id="filtroAsignatura">
+              <select class="form-select field" id="filtroAsignatura" disabled>
                 <option value="" selected>Selecciona una asignatura</option>
               </select>
             </div>
@@ -110,7 +111,7 @@
       </section>
 
       <!-- Pestañas: registro, historial y alertas. -->
-      <section class="container block" aria-label="Asistencia">
+      <section class="container block" id="attendancePanels" aria-label="Asistencia">
         <ul class="nav nav-pills tabs-zetta mb-3" id="tabsAsistencia" role="tablist">
           <li class="nav-item" role="presentation">
             <button class="nav-link active" id="tab-registro" data-bs-toggle="pill" data-bs-target="#panel-registro" type="button" role="tab" aria-controls="panel-registro" aria-selected="true">Registro diario</button>
@@ -129,6 +130,22 @@
           <!-- Registro diario: lista de estudiantes con estado. -->
           <div class="tab-pane fade show active" id="panel-registro" role="tabpanel" aria-labelledby="tab-registro" tabindex="0">
             <div class="glass table-card">
+              <section id="attendanceSheetInfo" class="attendance-sheet-info" hidden aria-label="Datos del registro">
+                <div class="attendance-sheet-heading">
+                  <div>
+                    <p class="attendance-sheet-eyebrow">Planilla del día</p>
+                    <h2>Registro de asistencia</h2>
+                  </div>
+                  <button class="btn btn-zetta attendance-print-button" id="btnImprimir" type="button">
+                    Imprimir lista
+                  </button>
+                </div>
+                <dl>
+                  <div><dt>Grupo</dt><dd id="sheetCourse"></dd></div>
+                  <div><dt>Asignatura</dt><dd id="sheetSubject"></dd></div>
+                  <div><dt>Fecha</dt><dd id="sheetDate"></dd></div>
+                </dl>
+              </section>
               <div class="legend" aria-label="Leyenda de estados">
                 <span class="dot dot-presente"></span>Presente
                 <span class="dot dot-ausente"></span>Ausente
@@ -141,7 +158,7 @@
                     <tr>
                       <th scope="col" class="col-num">#</th>
                       <th scope="col">Estudiante</th>
-                      <th scope="col">Documento</th>
+                      <th scope="col" class="student-document-heading">Documento</th>
                       <th scope="col">Estado</th>
                     </tr>
                   </thead>
@@ -152,7 +169,7 @@
                         <div class="empty">
                           <div class="empty-icon" aria-hidden="true">✓</div>
                           <h3 class="h6">Aún no hay una lista cargada</h3>
-                          <p class="mb-0">Elige curso, asignatura y fecha, y pulsa “Cargar lista”.</p>
+                          <p class="mb-0">Elige un grupo, una asignatura y la fecha para cargar la lista.</p>
                         </div>
                       </td>
                     </tr>
@@ -166,6 +183,12 @@
           <div class="tab-pane fade" id="panel-historial" role="tabpanel" aria-labelledby="tab-historial" tabindex="0">
             <div class="glass table-card">
               <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label" for="histCurso">Grupo</label>
+                  <select class="form-select field" id="histCurso">
+                    <option value="">Todos mis grupos</option>
+                  </select>
+                </div>
                 <div class="col-md-6">
                   <label class="form-label" for="histEstudiante">Estudiante</label>
                   <input class="form-control field" type="search" id="histEstudiante" placeholder="Nombre o documento">

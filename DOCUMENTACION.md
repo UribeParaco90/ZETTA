@@ -8,8 +8,8 @@ ZETTA es una plataforma académica SaaS multiinstitución con control de acceso 
 |---|---|---|
 | SuperAdmin | Plataforma | Crear instituciones y administradores, revisar métricas de uso por plan y auditoría global. |
 | Admin | Una institución | Usuarios, matrículas, cursos, materias, horarios, actividades, planilla masiva, configuración de evaluación, cierres, excusas, marca institucional y auditoría de cambios. |
-| Profesor | Cursos y materias asignados | Actividades y notas mediante planilla masiva, asistencia, observaciones y consulta de horario. |
-| Estudiante | Sus propios datos | Perfil, edición de correo, notas, asistencia, observaciones y vista previa imprimible de calificaciones. |
+| Profesor | Materias asignadas y grupos que dicta; puede ser director de grupo | Actividades y notas mediante planilla masiva, asistencia, observaciones y consulta de horario. No consulta el directorio institucional de usuarios. |
+| Estudiante | Sus propios datos | Perfil académico, edición de correo personal y cumpleaños, notas por periodo, asistencia y observaciones. |
 | Acudiente | Estudiantes vinculados | Autorregistro, vinculación mediante código, consulta de matrículas, notas, asistencia, observaciones y presentación de excusas. |
 
 ## Alta, correos y acceso
@@ -18,7 +18,7 @@ ZETTA es una plataforma académica SaaS multiinstitución con control de acceso 
 - Admin crea cuentas de Profesor y Estudiante. El servidor genera `nombre.apellido@dominio` y prueba sufijos numéricos si el correo ya existe.
 - Las cuentas creadas por Admin no reciben una contraseña predeterminada. Se crea un token aleatorio, de un solo uso y con vencimiento de 24 horas. El administrador obtiene el enlace una vez al crear la cuenta; también se encola un correo de activación.
 - Acudientes se autorregistran y vinculan uno o varios estudiantes con el código generado desde el perfil del estudiante. La relación es muchos a muchos.
-- Estudiantes pueden actualizar su correo institucional y registrar un correo personal.
+- El correo institucional generado no se puede modificar. Estudiantes pueden registrar un correo personal y editar su fecha de cumpleaños desde el perfil.
 - SMTP se configura con variables de entorno. Sin configuración, los envíos permanecen pendientes en `email_outbox`; no se incluyen credenciales en el repositorio.
 
 ## Institución y evaluación
@@ -34,16 +34,17 @@ ZETTA es una plataforma académica SaaS multiinstitución con control de acceso 
 ## Asistencia, excusas y observaciones
 
 - Profesores registran asistencia en las asignaturas asignadas. Una ausencia genera una alerta de correo al acudiente vinculado y queda en la cola de correo.
+- El perfil de profesor distingue los cursos donde dicta asignaturas de aquellos donde es director de grupo. Materias, matrículas, calificaciones y asistencia se limitan a sus asignaciones; la vista de usuarios no está disponible para este rol.
 - Acudientes pueden presentar excusas; Admin puede aprobarlas o rechazarlas.
 - Profesores registran observaciones solo sobre estudiantes de cursos que tienen asignados. Estudiantes y acudientes vinculados pueden consultarlas.
 - `horarios` registra día, hora y aula por asignatura; Admin los administra y el profesor consulta sus propios horarios.
 
 ## Modelo relacional
 
-El esquema vigente está en `backend/schema.postgres.sql`; para actualizar una base existente se debe respaldar y ejecutar `backend/migrations/001_funcionalidad_roles.sql`.
+El esquema vigente está en `backend/schema.postgres.sql`; para actualizar una base existente se debe respaldar y ejecutar las migraciones `backend/migrations/001_funcionalidad_roles.sql` y `backend/migrations/002_fecha_nacimiento_estudiante.sql`.
 
 - `instituciones`: dominio, plan, nombre y marca.
-- `usuarios`: institución opcional para SuperAdmin, credenciales hash opcionales hasta activar, estado de primer ingreso y correo personal.
+- `usuarios`: institución opcional para SuperAdmin, credenciales hash opcionales hasta activar, estado de primer ingreso, correo personal y fecha de cumpleaños.
 - `cursos`, `asignaturas`, `horarios`, `matriculas`: estructura académica, aula, dirección de grupo e intensidad horaria.
 - `configuracion_institucional`, `periodos`: escala, nota mínima, cantidad y ponderación de periodos, con estado de cierre.
 - `actividades`, `notas_actividades` y `calificaciones`: evaluación por actividad y compatibilidad con notas previas.
@@ -56,4 +57,4 @@ La tabla raíz `GestionAcademica.sql` contiene el esquema para una instalación 
 
 ## Interfaz
 
-La interfaz conserva el tema oscuro glassmórfico, gradientes nocturnos, acentos cian/índigo y tarjetas de navegación por rol. Las operaciones académicas y la consola administrativa consultan la API; las vistas de certificado muestran de forma explícita que no tienen validez oficial.
+La interfaz conserva el tema oscuro glassmórfico, gradientes nocturnos, acentos cian/índigo y tarjetas de navegación por rol. Solo se muestran módulos disponibles para cada perfil. Los estudiantes consultan sus notas por periodo, asistencia y observaciones con profesor y fecha. Las operaciones académicas y la consola administrativa consultan la API; las vistas de certificado muestran de forma explícita que no tienen validez oficial.

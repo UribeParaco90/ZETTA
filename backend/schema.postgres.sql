@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     apellido VARCHAR(80) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     email_personal VARCHAR(150),
+    fecha_nacimiento DATE,
     password_hash VARCHAR(255),
     primer_ingreso BOOLEAN NOT NULL DEFAULT TRUE,
     codigo_vinculacion CHAR(64) UNIQUE,

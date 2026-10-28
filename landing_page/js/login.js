@@ -19,9 +19,9 @@
     const role = window.ZettaRoles.find((item) => item.id === roleInput.value);
     roleDescription.textContent = role?.description ?? "Selecciona tu perfil.";
     rolePermissions.replaceChildren();
-    (role?.permissions ?? []).forEach((permission) => {
+    (role?.permissions ?? []).filter((permission) => permission.available).forEach((permission) => {
       const item = document.createElement("li");
-      item.textContent = permission.available ? permission.label : `${permission.label} · Próximamente`;
+      item.textContent = permission.label;
       rolePermissions.append(item);
     });
     roleScope.hidden = !role;

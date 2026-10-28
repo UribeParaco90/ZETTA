@@ -17,19 +17,17 @@
     document.querySelector("#roleTitle").textContent = role.label;
     document.querySelector("#roleDescription").textContent = role.description;
     const navigation = document.querySelector("#roleNavigation");
-    role.permissions.forEach((permission) => {
+    role.permissions.filter((permission) => permission.available).forEach((permission) => {
       const isCurrent = permission.path === "/dashboard.html";
-      const element = permission.available && !isCurrent
+      const element = !isCurrent
         ? document.createElement("a")
         : document.createElement("article");
-      element.className = `dashboard-card${permission.available ? "" : " is-upcoming"}${isCurrent ? " is-current" : ""}`;
+      element.className = `dashboard-card${isCurrent ? " is-current" : ""}`;
       if (element instanceof HTMLAnchorElement) element.href = permission.path;
       const heading = document.createElement("h2");
       heading.textContent = permission.label;
       const status = document.createElement("span");
-      status.textContent = !permission.available
-        ? "Próximamente"
-        : isCurrent ? "Estás aquí" : "Abrir módulo →";
+      status.textContent = isCurrent ? "Estás aquí" : "Abrir módulo →";
       element.append(heading, status);
       navigation.append(element);
     });
