@@ -2303,24 +2303,31 @@ app.use("/api", (request, response) => {
 
 app.get("/", (request, response) => response.redirect("/index.html"));
 app.get("/dashboard.html", requirePageRoles(validRoles), (request, response) => {
+  response.setHeader("Cache-Control", "no-store");
   response.sendFile(path.join(landingPage, "dashboard.html"));
 });
 app.get("/admin.html", requirePageRoles(validRoles), (request, response) => {
+  response.setHeader("Cache-Control", "no-store");
   response.sendFile(path.join(landingPage, "admin.html"));
 });
 app.get("/perfil.html", requirePageRoles(["Estudiante", "Acudiente"]), (request, response) => {
+  response.setHeader("Cache-Control", "no-store");
   response.sendFile(path.join(landingPage, "perfil.html"));
 });
 app.get("/modules/asistencias/asistencia.html", requirePageRoles(["Admin", "Profesor"]), (request, response) => {
+  response.setHeader("Cache-Control", "no-store");
   response.sendFile(path.join(root, "modules", "asistencias", "asistencia.html"));
 });
 app.get("/planilla.html", requirePageRoles(["Admin", "Profesor"]), (request, response) => {
+  response.setHeader("Cache-Control", "no-store");
   response.sendFile(path.join(landingPage, "planilla.html"));
 });
 app.get("/modules/certificaciones/certificado-calificaciones.html", requirePageRoles(["Admin", "Estudiante", "Acudiente"]), (request, response) => {
+  response.setHeader("Cache-Control", "no-store");
   response.sendFile(path.join(root, "modules", "certificaciones", "certificado-calificaciones.html"));
 });
 app.get("/modules/estudiante/seguimiento.html", requirePageRoles(["Estudiante"]), (request, response) => {
+  response.setHeader("Cache-Control", "no-store");
   response.sendFile(path.join(root, "modules", "estudiante", "seguimiento.html"));
 });
 

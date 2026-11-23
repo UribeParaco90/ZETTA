@@ -372,6 +372,28 @@ input[type="date"].field {
   background: rgba(251, 146, 60, 0.15);
 }
 
+.attendance-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+
+.attendance-status-presente {
+  color: var(--presente);
+  background: rgba(52, 211, 153, 0.15);
+}
+
+.attendance-status-ausente {
+  color: var(--ausente);
+  background: rgba(248, 113, 113, 0.15);
+}
+
 /* Estado vacío. */
 .empty {
   padding: 40px 12px;

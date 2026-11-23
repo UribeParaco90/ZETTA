@@ -12,8 +12,10 @@
       window.location.replace("/login.html");
       return;
     }
-    document.querySelector("[data-session-name]").textContent = result.name;
-    document.querySelector("#roleBadge").textContent = role.label;
+    const sessionName = document.querySelector("[data-session-name]");
+    const roleBadge = document.querySelector("#roleBadge");
+    if (sessionName) sessionName.textContent = result.name;
+    if (roleBadge) roleBadge.textContent = role.label;
     document.querySelector("#roleTitle").textContent = role.label;
     document.querySelector("#roleDescription").textContent = role.description;
     const navigation = document.querySelector("#roleNavigation");
@@ -33,7 +35,7 @@
     });
   };
 
-  document.querySelector("#logoutButton").addEventListener("click", async () => {
+  document.querySelector("#logoutButton")?.addEventListener("click", async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } finally {

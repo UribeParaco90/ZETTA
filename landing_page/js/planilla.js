@@ -189,7 +189,7 @@
     }
   });
 
-  $("#logoutButton").addEventListener("click", async () => {
+  $("#logoutButton")?.addEventListener("click", async () => {
     try {
       await api("/api/auth/logout", { method: "POST" });
       window.location.assign("/login.html");
@@ -206,7 +206,8 @@
         api("/api/configuracion-institucional")
       ]);
       state.user = user;
-      $("#currentUser").textContent = `${user.name} · ${user.role}`;
+      const currentUser = $("#currentUser");
+      if (currentUser) currentUser.textContent = `${user.name} · ${user.role}`;
       subjectSelect.replaceChildren(new Option("Selecciona una asignatura", ""));
       subjects.forEach((subject) => {
         const option = new Option(
@@ -226,7 +227,8 @@
       if (!subjects.length) report("No hay asignaturas disponibles para tu perfil.");
     } catch (error) {
       report(error.message);
-      $("#currentUser").textContent = "Sesión no disponible";
+      const currentUser = $("#currentUser");
+      if (currentUser) currentUser.textContent = "Sesión no disponible";
     }
   };
 

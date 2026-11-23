@@ -14,38 +14,9 @@
     <link rel="stylesheet" href="certificacion.css">
     <script src="/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
     <script src="certificado-calificaciones.js" defer></script>
+    <script src="/js/role-nav.js" defer></script>
   </head>
   <body class="cert-page">
-    <nav class="navbar navbar-expand-md island" aria-label="Navegación de módulos">
-      <a class="navbar-brand fw-bold grad" href="/index.html">ZETTA</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#menuCertificaciones"
-        aria-controls="menuCertificaciones"
-        aria-expanded="false"
-        aria-label="Abrir o cerrar el menú"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="menuCertificaciones">
-        <ul class="navbar-nav mx-auto">
-          <li class="nav-item"><a class="nav-link" href="/dashboard.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" id="attendanceModuleLink" hidden href="../asistencias/asistencia.html">Mi asistencia</a></li>
-          <li class="nav-item"><a class="nav-link" id="observationsModuleLink" hidden href="/modules/estudiante/seguimiento.html?tipo=observaciones">Mi observador</a></li>
-          <li class="nav-item"><a class="nav-link active" id="gradesModuleLink" href="certificado-calificaciones.html" aria-current="page">Mis notas</a></li>
-        </ul>
-        <div class="d-flex align-items-center gap-2">
-          <span class="user-chip">
-            <span class="avatar" aria-hidden="true"></span>
-            <span id="userName">Demo</span>
-          </span>
-          <button class="btn btn-ghost btn-sm px-3" id="logoutButton" type="button">Salir</button>
-        </div>
-      </div>
-    </nav>
-
     <main class="cert-module">
       <header class="container cert-head">
         <div>

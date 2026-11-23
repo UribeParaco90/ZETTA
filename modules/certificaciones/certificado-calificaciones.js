@@ -6,7 +6,6 @@
   const result = document.querySelector("#certificateResult");
   const printButton = document.querySelector("#printButton");
   const logoutButton = document.querySelector("#logoutButton");
-  const userName = document.querySelector("#userName");
 
   const api = async (url, options) => {
     const response = await fetch(url, options);
@@ -81,18 +80,20 @@
       api("/api/auth/me"),
       api("/api/configuracion-institucional")
     ]);
-    userName.textContent = session.name;
     const isStudent = session.role === "Estudiante";
     const attendanceLink = document.querySelector("#attendanceModuleLink");
-    if (isStudent) {
-      attendanceLink.href = "/modules/estudiante/seguimiento.html?tipo=asistencia";
-      attendanceLink.textContent = "Mi asistencia";
-      document.querySelector("#observationsModuleLink").hidden = false;
-    } else if (session.role === "Acudiente") {
-      attendanceLink.href = "/admin.html?entity=excusas";
-      attendanceLink.textContent = "Asistencia y excusas";
+    if (attendanceLink) {
+      if (isStudent) {
+        attendanceLink.href = "/modules/estudiante/seguimiento.html?tipo=asistencia";
+        attendanceLink.textContent = "Mi asistencia";
+      } else if (session.role === "Acudiente") {
+        attendanceLink.href = "/admin.html?entity=excusas";
+        attendanceLink.textContent = "Asistencia y excusas";
+      }
+      attendanceLink.hidden = false;
     }
-    attendanceLink.hidden = false;
+    const observationsLink = document.querySelector("#observationsModuleLink");
+    if (observationsLink && isStudent) observationsLink.hidden = false;
     const studentField = document.querySelector("#studentField");
     studentField.hidden = isStudent;
     studentSelect.required = !isStudent;
@@ -153,7 +154,7 @@
     feedback.textContent = "";
   });
   printButton.addEventListener("click", () => window.print());
-  logoutButton.addEventListener("click", async () => {
+  logoutButton?.addEventListener("click", async () => {
     try {
       await api("/api/auth/logout", { method: "POST" });
     } finally {

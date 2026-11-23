@@ -16,38 +16,9 @@
     <link rel="stylesheet" href="asistencia.css?v=attendance-sheet-4">
     <script src="/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
     <script src="asistencia.js?v=attendance-sheet-3" defer></script>
+    <script src="/js/role-nav.js" defer></script>
   </head>
   <body>
-    <!-- Barra isla flotante: menú de módulos. -->
-    <nav class="navbar navbar-expand-md island" aria-label="Navegación de módulos">
-      <a class="navbar-brand fw-bold grad" href="/index.html">ZETTA</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#menu"
-        aria-controls="menu"
-        aria-expanded="false"
-        aria-label="Abrir o cerrar el menú"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav mx-auto">
-          <li class="nav-item"><a class="nav-link" href="/index.html#modulos">Módulos</a></li>
-          <li class="nav-item"><a class="nav-link active" href="asistencia.html" aria-current="page">Asistencia</a></li>
-          <li class="nav-item"><a class="nav-link" id="certificationModuleLink" hidden href="../certificaciones/certificado-calificaciones.html">Certificaciones</a></li>
-        </ul>
-        <div class="d-flex align-items-center gap-2">
-          <span class="user-chip" id="usuarioActual">
-            <span class="avatar" aria-hidden="true"></span>
-            <span class="user-name">Usuario</span>
-          </span>
-          <button class="btn btn-ghost btn-sm px-3" id="logoutButton" type="button">Salir</button>
-        </div>
-      </div>
-    </nav>
-
     <main class="module">
       <!-- Encabezado del módulo. -->
       <header class="container module-head">

@@ -133,16 +133,22 @@
       historyBody.replaceChildren();
       filtered.forEach((record) => {
         const row = document.createElement("tr");
+        const [year, month, day] = String(record.fecha).slice(0, 10).split("-");
         [
-          new Date(`${record.fecha}T00:00:00`).toLocaleDateString("es-CO"),
+          `${day}/${month}/${year}`,
           `${record.estudiante_nombre} ${record.estudiante_apellido}`,
-          record.asignatura,
-          record.estado
+          record.asignatura
         ].forEach((value) => {
           const cell = document.createElement("td");
           cell.textContent = value;
           row.append(cell);
         });
+        const statusCell = document.createElement("td");
+        const status = document.createElement("span");
+        status.className = `attendance-status attendance-status-${record.estado.toLocaleLowerCase()}`;
+        status.textContent = record.estado;
+        statusCell.append(status);
+        row.append(statusCell);
         historyBody.append(row);
       });
       if (!filtered.length) historyBody.innerHTML = '<tr><td colspan="4">No hay registros para estos filtros.</td></tr>';
@@ -239,13 +245,16 @@
 
   const initialize = async () => {
     user = await api("/api/auth/me");
-    document.querySelector(".user-name").textContent = user.name;
+    const legacyUserName = document.querySelector(".user-name");
+    if (legacyUserName) legacyUserName.textContent = user.name;
     if (!["Admin", "Profesor"].includes(user.role)) {
       window.location.replace("/dashboard.html");
       return;
     }
-    document.querySelector("#certificationModuleLink").hidden = user.role !== "Admin";
-    document.querySelector("#btnMarcarAusentes").hidden = user.role !== "Profesor";
+    const certificationModuleLink = document.querySelector("#certificationModuleLink");
+    if (certificationModuleLink) certificationModuleLink.hidden = user.role !== "Admin";
+    const markAbsentButton = document.querySelector("#btnMarcarAusentes");
+    if (markAbsentButton) markAbsentButton.hidden = user.role !== "Profesor";
     const [courseData, subjectData] = await Promise.all([
       api("/api/cursos?limit=200"),
       api("/api/asignaturas?limit=200")

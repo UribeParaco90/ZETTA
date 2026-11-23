@@ -69,6 +69,10 @@
 
   const displayValue = (field, value) => {
     if (field.key === "primer_ingreso") return value ? "Pendiente" : "Activada";
+    if (field.key === "fecha" && /^\d{4}-\d{2}-\d{2}/.test(String(value))) {
+      const [year, month, day] = String(value).slice(0, 10).split("-");
+      return `${day}/${month}/${year}`;
+    }
     if (!value) return "—";
     if (field.type === "reference") {
       const record = (state.references.get(field.reference) || []).find((item) => item.id === value);
@@ -97,6 +101,12 @@
       { key: "periodo", label: "Periodo" },
       { key: "nota", label: "Nota" },
       { key: "porcentaje", label: "Porcentaje" }
+    ],
+    asistencia: [
+      { key: "matricula_nombre", label: "Matrícula" },
+      { key: "asignatura_nombre", label: "Asignatura" },
+      { key: "fecha", label: "Fecha", type: "date" },
+      { key: "estado", label: "Estado" }
     ]
   };
 
@@ -111,6 +121,31 @@
           ? "Director de grupo"
           : "Docente por asignatura")
       }));
+    }
+
+    if (entityKey === "asistencia") {
+      const [matriculas, subjects] = await Promise.all([
+        api("/api/matriculas?limit=200"),
+        api("/api/asignaturas?limit=200")
+      ]);
+      const enrollmentNames = new Map(matriculas.records.map((record) => [
+        record.id,
+        record.estudiante_nombre || "Estudiante"
+      ]));
+      const subjectMap = new Map(subjects.records.map((subject) => [
+        subject.id,
+        { nombre: subject.nombre, curso_id: subject.curso_id, curso_nombre: subject.curso_nombre }
+      ]));
+      return records.map((record) => {
+        const subject = subjectMap.get(record.asignatura_id);
+        return {
+          ...record,
+          matricula_nombre: enrollmentNames.get(record.matricula_id) || "Estudiante",
+          asignatura_nombre: subject?.nombre || "Asignatura",
+          curso_id: subject?.curso_id || null,
+          curso_nombre: subject?.curso_nombre || ""
+        };
+      });
     }
 
     if (entityKey === "asignaturas" || entityKey === "matriculas") {
@@ -195,10 +230,12 @@
     const isUserList = state.entity.key === "usuarios";
     const isSuperAdminUserList = state.user.role === "SuperAdmin" && state.entity.key === "usuarios";
     const isAdminUserList = state.user.role === "Admin" && state.entity.key === "usuarios";
+    const isTeacherAttendance = state.user.role === "Profesor" && state.entity.key === "asistencia";
     const records = state.records.filter((record) => {
       if (isSuperAdminUserList && institutionId && record.institucion_id !== institutionId) return false;
       if (isUserList && role && record.rol !== role) return false;
       if (isAdminUserList && groupId && !state.userGroups.get(groupId)?.has(record.id)) return false;
+      if (isTeacherAttendance && groupId && record.curso_id !== groupId) return false;
       const searchableValues = fields.map((field) => displayValue(field, record[field.key]));
       if (isSuperAdminUserList) {
         searchableValues.push(institutionNames.get(record.institucion_id) || "");
@@ -225,7 +262,14 @@
       const row = document.createElement("tr");
       fields.forEach((field) => {
         const cell = document.createElement("td");
-        cell.textContent = displayValue(field, record[field.key]);
+        if (state.entity.key === "asistencia" && field.key === "estado") {
+          const status = document.createElement("span");
+          status.className = `attendance-status attendance-status-${String(record.estado).toLocaleLowerCase()}`;
+          status.textContent = record.estado;
+          cell.append(status);
+        } else {
+          cell.textContent = displayValue(field, record[field.key]);
+        }
         row.append(cell);
       });
       if (state.entity.canWrite || state.entity.canManageActivation) {
@@ -287,7 +331,8 @@
     const isAdminUserList = state.user.role === "Admin" && isUserList;
     element("#institutionFilterGroup").hidden = !isSuperAdminUserList;
     element("#roleFilterGroup").hidden = !isUserList;
-    element("#groupFilterGroup").hidden = !isAdminUserList;
+    element("#groupFilterGroup").hidden = !isAdminUserList
+      && !(state.user.role === "Profesor" && state.entity.key === "asistencia");
     if (!isSuperAdminUserList) return;
 
     const institutionFilter = element("#institutionFilter");
@@ -305,9 +350,10 @@
   const loadUserGroupFilters = async () => {
     const groupFilter = element("#groupFilter");
     const isAdminUserList = state.user.role === "Admin" && state.entity.key === "usuarios";
+    const isTeacherAttendance = state.user.role === "Profesor" && state.entity.key === "asistencia";
     groupFilter.replaceChildren(new Option("Todos los grupos", ""));
     state.userGroups.clear();
-    if (!isAdminUserList) return;
+    if (!isAdminUserList && !isTeacherAttendance) return;
 
     const [courses, enrollments, subjects] = await Promise.all([
       api("/api/cursos?limit=200"),
@@ -333,6 +379,8 @@
 
     courses.records
       .slice()
+      .filter((course) => !isTeacherAttendance
+        || subjects.records.some((subject) => subject.curso_id === course.id))
       .sort((left, right) => (
         left.nombre.localeCompare(right.nombre, "es")
         || Number(right.periodo_lectivo) - Number(left.periodo_lectivo)
@@ -594,7 +642,7 @@
     }
   });
 
-  element("#logoutButton").addEventListener("click", async () => {
+  element("#logoutButton")?.addEventListener("click", async () => {
     try {
       await api("/api/auth/logout", { method: "POST" });
     } finally {
@@ -613,9 +661,11 @@
   const initialize = async () => {
     const user = await api("/api/auth/me");
     state.user = user;
-    element("#adminUser").textContent = user.name;
+    const adminUser = element("#adminUser");
+    if (adminUser) adminUser.textContent = user.name;
     const health = await api("/api/health");
-    element("#connectionState").textContent = `Neon conectado · ${health.database}`;
+    const connectionState = element("#connectionState");
+    if (connectionState) connectionState.textContent = `Neon conectado · ${health.database}`;
     const view = new URLSearchParams(window.location.search).get("view");
     if (view === "metrics" || view === "settings") {
       if (view === "metrics" && user.role !== "SuperAdmin") {
@@ -823,6 +873,7 @@
   initialize().catch((error) => {
     console.error("No fue posible iniciar la consola de administración.", error);
     report(error.message);
-    element("#connectionState").textContent = "No se pudo conectar";
+    const connectionState = element("#connectionState");
+    if (connectionState) connectionState.textContent = "No se pudo conectar";
   });
 })();

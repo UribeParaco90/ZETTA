@@ -187,6 +187,28 @@
   color: #7dd3fc;
 }
 
+.attendance-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 0.28rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+
+.attendance-status-presente {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.14);
+}
+
+.attendance-status-ausente {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.14);
+}
+
 .empty-state {
   padding: 2.5rem 1rem;
   text-align: center;

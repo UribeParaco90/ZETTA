@@ -59,20 +59,23 @@
 
   const initialize = async () => {
     const user = await api("/api/auth/me");
-    document.querySelector("#userName").textContent = user.name;
+    const userName = document.querySelector("#userName");
+    if (userName) userName.textContent = user.name;
     heading.textContent = isAttendance ? "Mi asistencia" : "Mi observador";
     description.textContent = isAttendance
       ? "Consulta tus materias, el estado y la fecha de cada registro."
       : "Consulta las observaciones realizadas por tus profesores y la fecha.";
     const activeLink = document.querySelector(isAttendance ? "#attendanceLink" : "#observationsLink");
-    activeLink.classList.add("active");
-    activeLink.setAttribute("aria-current", "page");
+    if (activeLink) {
+      activeLink.classList.add("active");
+      activeLink.setAttribute("aria-current", "page");
+    }
     const endpoint = isAttendance ? "mi-asistencia" : "mi-observador";
     const data = await api(`/api/academico/${endpoint}`);
     render(data.records);
   };
 
-  document.querySelector("#logoutButton").addEventListener("click", async () => {
+  document.querySelector("#logoutButton")?.addEventListener("click", async () => {
     try {
       await api("/api/auth/logout", { method: "POST" });
     } finally {

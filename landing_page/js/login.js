@@ -52,6 +52,7 @@
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: emailInput.value.trim(),
@@ -61,6 +62,14 @@
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "No fue posible iniciar sesión.");
+      const sessionResponse = await fetch("/api/auth/me", {
+        credentials: "same-origin",
+        cache: "no-store"
+      });
+      if (!sessionResponse.ok) {
+        throw new Error("La sesión no quedó activa. Recarga la página e intenta nuevamente.");
+      }
+      await sessionResponse.json();
       feedback.textContent = `Sesión iniciada para ${result.name}.`;
       feedback.classList.add("success");
       window.location.assign("/dashboard.html");
