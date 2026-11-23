@@ -23,8 +23,8 @@ const entities = {
       })
     ],
     display: ["nombre", "nit_codigo", "dominio", "plan_suscripcion"],
-    readRoles: ["SuperAdmin", "Admin"],
-    writeRoles: ["SuperAdmin", "Admin"]
+    readRoles: ["SuperAdmin"],
+    writeRoles: ["SuperAdmin" ]
   },
   usuarios: {
     label: "Usuarios",
@@ -84,7 +84,7 @@ const entities = {
       field("aula", "Aula", "text", { maxLength: 80 })
     ],
     display: ["asignatura_id", "dia_semana", "hora_inicio", "hora_fin", "aula"],
-    readRoles: ["Admin", "Profesor"],
+    readRoles: ["Admin", "Profesor", "Estudiante", "Acudiente"],
     writeRoles: ["Admin"]
   },
   matriculas: {
